@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
 import 'package:qacc_application/widgets/date_form_field.dart';
+import 'package:qacc_application/widgets/large_button.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:qacc_application/widgets/task_check_form.dart';
@@ -204,22 +205,16 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                         },
                       ),
                       Gap(20.0),
+                      LargeButton(buttonText: 'إرسال الطلب',
+                      onPressed: _submitForm,),
+                                            Gap(20.0),
+
                     ],
                   ),
                 )
               ],
             ),
           ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16.0),
-        color: AppColors.secondaryColor.shade600,
-        width: double.infinity,
-        child: MaterialButton(
-          onPressed: _submitForm,
-          child:
-              Text('إرسال الطلب', style: Theme.of(context).textTheme.bodySmall),
         ),
       ),
     );
