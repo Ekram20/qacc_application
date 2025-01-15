@@ -6,24 +6,28 @@ class DateFormField extends StatelessWidget {
   final DateTime? initialDate;
   final ValueChanged<DateTime?> onDateSelected;
   final String? Function(String?)? validator;
+  final String labelText; // إضافة متغير لنص الحقل
+  final bool readOnly; // خاصية جديدة
 
   DateFormField({
     required this.controller,
     required this.onDateSelected,
     this.initialDate,
-    required this.validator,
+    this.validator,
+    required this.labelText,
+    this.readOnly = false, // إضافة خاصية readOnly مع قيمة افتراضية
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      readOnly: true,
+      readOnly: readOnly,
       style: Theme.of(context).textTheme.bodyMedium,
       // تخصيص تنسيق النص
 
       decoration: InputDecoration(
-        labelText: 'تاريخ التكليف',
+        labelText: labelText,
         labelStyle: Theme.of(context).textTheme.bodyMedium,
         border: OutlineInputBorder(),
         prefixIcon: Icon(Icons.calendar_today),

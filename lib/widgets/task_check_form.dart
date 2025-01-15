@@ -27,6 +27,8 @@ class TaskCheckForm extends StatelessWidget {
     required this.departmentValidator, // إضافة parameter للتحقق من اسم الإدارة
     required this.pdfValidator, // إضافة parameter للتحقق من الملف PDF
     required this.dateValidator,
+    required this.labelDateText
+
   });
 
   final String pdfTitle;
@@ -47,6 +49,7 @@ class TaskCheckForm extends StatelessWidget {
   final String? Function(String?)? departmentValidator;
   final String? Function(String?)? pdfValidator;
   final String? Function(String?)? dateValidator;
+    final String labelDateText; // إضافة متغير لنص الحقل
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +97,7 @@ class TaskCheckForm extends StatelessWidget {
                       validator: bookNumberValidator),
                   Gap(15.0),
                   DateFormField(
+                    labelText: labelDateText,
                     controller: controller,
                     validator: dateValidator,
                     onDateSelected: (date) {

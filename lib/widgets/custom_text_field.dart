@@ -6,10 +6,11 @@ class CustomTextField extends StatelessWidget {
     super.key,
     required this.labelText,
     required this.icon,
-    required this.validator,
+    this.validator,
     this.controller,
     this.onChanged,
     this.keyboardType = TextInputType.text,
+    this.readOnly = false, // إضافة خاصية readOnly مع قيمة افتراضية
   });
 
   final String labelText;
@@ -18,11 +19,14 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final void Function(String)? onChanged;
   final TextInputType keyboardType;
+  final bool readOnly; // خاصية جديدة
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      readOnly: readOnly, // تمرير الخاصية إلى TextFormField
+
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: Theme.of(context).textTheme.bodyMedium,
