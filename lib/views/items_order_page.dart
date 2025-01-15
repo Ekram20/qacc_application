@@ -5,6 +5,8 @@ import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 
+import '../widgets/large_button.dart';
+
 @RoutePage()
 class ItemsOrderPage extends StatefulWidget {
   const ItemsOrderPage({super.key});
@@ -176,18 +178,23 @@ class _ItemsOrderPageState extends State<ItemsOrderPage> {
                           ],
                         );
                       }).toList(),
-                      Container(
-                        color: AppColors.secondaryColor.shade600,
-                        width: double.infinity,
-                        child: MaterialButton(
-                          onPressed: _addItem,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text('إضافة صنف أخر',
-                                style: Theme.of(context).textTheme.bodySmall),
-                          ),
-                        ),
-                      ),
+                      LargeButton(
+                        buttonText:"إضافة صنف أخر" ,
+                        onPressed:_addItem,
+                      )
+                      // Container(
+                      //   color: AppColors.secondaryColor.shade600,
+                      //   width: double.infinity,
+                      //   child: MaterialButton(
+                      //     onPressed: _addItem,
+                      //     child: Padding(
+                      //       padding: const EdgeInsets.all(16.0),
+                      //       child: Text('إضافة صنف أخر',
+                      //           style: Theme.of(context).textTheme.bodySmall),
+                      //     ),
+                      //   ),
+                      // ),
+                      //
                     ],
                   ),
                 ),
