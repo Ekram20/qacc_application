@@ -62,6 +62,7 @@ class TaskCheckForm extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('هل تم تكليفك بواجب أو مهمة معينة للقيام بها',
                 style: Theme.of(context).textTheme.bodyMedium),

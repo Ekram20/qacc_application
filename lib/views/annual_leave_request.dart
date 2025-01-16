@@ -81,6 +81,8 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   onOptionChanged: (value) {
                     setState(() {
                       _selectedOption = value;
+                      isSubmitted = false;
+                      _file = null;
                     });
                   },
                   labelDateText: 'تاريخ التكليف',
@@ -127,7 +129,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                               controller: _daysController,
                               keyboardType: TextInputType.number,
                               labelText: 'عدد الأيام',
-                              icon: Icons.pin_outlined,
+                              icon: Icons.onetwothree_outlined,
                               validator: (value) => value!.isEmpty
                                   ? 'يرجى إدخال عدد الأيام'
                                   : null,
@@ -141,7 +143,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                               readOnly: true,
                               keyboardType: TextInputType.text,
                               labelText: 'عدد الأيام المسموح بها',
-                              icon: Icons.description_outlined,
+                              icon: Icons.pin_rounded,
                             ),
                           ),
                         ],
@@ -205,10 +207,11 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                         },
                       ),
                       Gap(20.0),
-                      LargeButton(buttonText: 'إرسال الطلب',
-                      onPressed: _submitForm,),
-                                            Gap(20.0),
-
+                      LargeButton(
+                        buttonText: 'إرسال الطلب',
+                        onPressed: _submitForm,
+                      ),
+                      Gap(20.0),
                     ],
                   ),
                 )
@@ -221,10 +224,10 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   }
 
   void _submitForm() {
-    setState(() {
-      isSubmitted = true; // تعيين حالة الإرسال إلى true
-    });
     if (_selectedOption == "نعم") {
+      setState(() {
+        isSubmitted = true; // تعيين حالة الإرسال إلى true
+      });
       // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
       if (_formKey.currentState!.validate()) {
         // تحقق إضافي لضمان أن الملف موجود عند اختيار "نعم"
@@ -239,6 +242,10 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
           '_bookNumberController': _bookNumberController.text,
           '_taskController': _taskController.text,
           '_departmentController': _departmentController.text,
+          '_daysController': _daysController.text,
+          '_leaveStartController': _leaveStartController.text,
+          '_leaveEndController': _leaveEndController.text,
+          '_resumptionController': _resumptionController.text,
         };
 
         // عرض رسالة نجاح بعد إرسال البيانات
@@ -251,14 +258,25 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
         );
       }
     } else if (_selectedOption == "لا") {
-      // إذا تم اختيار "لا"، يتم تجاهل النموذج بالكامل وعدم التحقق
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('تحديد لا بدون التحقق من الحقول'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.green,
-        ),
-      );
+      // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
+      if (_formKey.currentState!.validate()) {
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          '_daysController': _daysController.text,
+          '_leaveStartController': _leaveStartController.text,
+          '_leaveEndController': _leaveEndController.text,
+          '_resumptionController': _resumptionController.text,
+        };
+
+        // عرض رسالة نجاح بعد إرسال البيانات
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('البيانات: $requestData'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     }
   }
 
