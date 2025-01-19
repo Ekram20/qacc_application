@@ -13,6 +13,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: MaintenanceRequestType.page),
         AutoRoute(page: AnnualLeaveRequest.page),
         AutoRoute(page: PDFViewerRoute.page),
+        AutoRoute(page: MarriageLeaveRoute.page),
 
       ];
 }

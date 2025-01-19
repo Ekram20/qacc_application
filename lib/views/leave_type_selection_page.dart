@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:qacc_application/widgets/image_text_card.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 
@@ -38,15 +39,25 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Google_Calendar.png',
-                                mainText: 'إجازة سنوية'),
+                            child: InkWell(
+                              onTap: (){
+                                context.router.push(AnnualLeaveRequest());
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Google_Calendar.png',
+                                  mainText: 'إجازة سنوية'),
+                            ),
                           ),
                           Gap(15),
                           Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Medical_Bag.png',
-                                mainText: 'إجازة مرضية'),
+                            child: InkWell(
+                              onTap: (){
+
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Medical_Bag.png',
+                                  mainText: 'إجازة مرضية'),
+                            ),
                           ),
                         ],
                       ),
@@ -54,15 +65,25 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Siren.png',
-                                mainText: 'إجازة طارئة'),
+                            child: InkWell(
+                              onTap: (){
+
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Siren.png',
+                                  mainText: 'إجازة طارئة'),
+                            ),
                           ),
                           Gap(15),
                           Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/UNICEF.png',
-                                mainText: 'إجازة أمومة'),
+                            child: InkWell(
+                              onTap: (){
+
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/UNICEF.png',
+                                  mainText: 'إجازة أمومة'),
+                            ),
                           ),
                         ],
                       ),
@@ -70,15 +91,25 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Diamond_Ring.png',
-                                mainText: 'إجازة الزواج'),
+                            child: InkWell(
+                              onTap: (){
+                                context.router.push(MarriageLeaveRoute());
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Diamond_Ring.png',
+                                  mainText: 'إجازة الزواج'),
+                            ),
                           ),
                           Gap(15),
                           Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Paper.png',
-                                mainText: 'إجازة الوفاة'),
+                            child: InkWell(
+                              onTap: (){
+
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Paper.png',
+                                  mainText: 'إجازة الوفاة'),
+                            ),
                           ),
                         ],
                       ),
@@ -86,15 +117,25 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Kaaba.png',
-                                mainText: 'إجازة الحج'),
+                            child: InkWell(
+                              onTap: (){
+
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Kaaba.png',
+                                  mainText: 'إجازة الحج'),
+                            ),
                           ),
                           Gap(15),
                           Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Grades.png',
-                                mainText: 'إجازة الإمتحانات'),
+                            child: InkWell(
+                              onTap: (){
+
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Grades.png',
+                                  mainText: 'إجازة الإمتحانات'),
+                            ),
                           ),
                         ],
                       ),

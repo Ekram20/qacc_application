@@ -17,7 +17,7 @@ class BottomNavigationBarEmployees extends StatefulWidget {
 class _BottomNavigationBarEmployeesState
     extends State<BottomNavigationBarEmployees> {
   List _pageOptions = [
-    AnnualLeaveRequest(),
+    HomePage(),
     Center(child: Text('Page 2')),
     Center(child: Text('Page 3')),
     EmployeeFiles(),
