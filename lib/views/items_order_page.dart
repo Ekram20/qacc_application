@@ -180,6 +180,7 @@ class _ItemsOrderPageState extends State<ItemsOrderPage> {
                       }).toList(),
                       LargeButton(
                         buttonText:"إضافة صنف أخر" ,
+                        color: AppColors.secondaryColor.shade600,
                         onPressed:_addItem,
                       )
                       // Container(
