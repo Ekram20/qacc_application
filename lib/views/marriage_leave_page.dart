@@ -123,6 +123,7 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                       LargeButton(
                         buttonText: 'إرسال الطلب',
                         onPressed: _submitForm,
+                        color: AppColors.primaryColor,
                       ),
                       Gap(20)
                     ],
@@ -168,12 +169,31 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
         'fileAttached': _file != null,
       };
 
+      // عرض رسالة النجاح
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("تم إرسال البيانات بنجاح: $requestData"),
+         // content: Text("تم إرسال البيانات بنجاح: $requestData"),
+          content: Text("تم إرسال البيانات بنجاح: "),
+
           backgroundColor: Colors.green,
         ),
       );
+
+      // تفريغ جميع الحقول
+      setState(() {
+        requestDateController.clear();
+        startDateController.clear();
+        endDateController.clear();
+        resumeDateController.clear();
+        taskDateController.clear();
+        bookNumberController.clear();
+        taskController.clear();
+        departmentController.clear();
+        _file = null;
+        _selectedOption = "نعم";
+        isSubmitted = false;
+      });
     }
   }
+
 }
