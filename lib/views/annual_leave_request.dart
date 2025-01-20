@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
-import 'package:qacc_application/widgets/date_form_field.dart';
+import 'package:qacc_application/widgets/date_form_field_widget_fs.dart';
 import 'package:qacc_application/widgets/large_button.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 import 'package:auto_route/auto_route.dart';
@@ -122,94 +122,43 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Column(
                     children: [
-                      Row(
-                        children: [
-                          // حقل عدد الأيام
-                          Expanded(
-                            child: CustomTextField(
-                              controller: _daysController,
-                              keyboardType: TextInputType.number,
-                              labelText: 'عدد الأيام',
-                              icon: Icons.onetwothree_outlined,
-                              validator: (value) => value!.isEmpty
-                                  ? 'يرجى إدخال عدد الأيام'
-                                  : null,
-                            ),
-                          ),
-                          Gap(10.0), // مسافة بين الحقول
-                          // حقل عدد الأيام المسموح بها
-                          Expanded(
-                            child: CustomTextField(
-                              controller: TextEditingController(text: "30"),
-                              readOnly: true,
-                              keyboardType: TextInputType.text,
-                              labelText: 'عدد الأيام المسموح بها',
-                              icon: Icons.pin_rounded,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      Gap(10.0), // مسافة بين الحقول
-
-                      DateFormField(
-                        labelText: 'تاريخ الطلب',
-                        controller: _requestDateController,
-                        onDateSelected: (date) {
-                          setState(() {
-                            _requestDate = date;
-                            _requestDateController.text =
-                                "${_requestDate!.year}-${_requestDate!.month}-${_requestDate!.day}";
-                          });
-                        },
+                      CustomTextField(
+                        controller: _daysController,
+                        keyboardType: TextInputType.number,
+                        labelText: 'أدخل عدد الأيام',
+                        icon: Icons.onetwothree_outlined,
                         validator: (value) =>
-                            value!.isEmpty ? 'يرجى إدخال تاريخ الطلب' : null,
-                      ),
-                      Gap(10.0),
-                      Row(
-                        children: [
-                          // حقل عدد الأيام
-                          Expanded(
-                            child: DateFormField(
-                              labelText: 'تاريخ بداية الإجازة',
-                              controller: _leaveStartController,
-                              onDateSelected: (date) {
-                                setState(() {
-                                  _leaveStartDate = date;
-                                  _leaveStartController.text =
-                                      "${_leaveStartDate!.year}-${_leaveStartDate!.month}-${_leaveStartDate!.day}";
-                                });
-                              },
-                              validator: (value) => value!.isEmpty
-                                  ? 'يرجى إدخال تاريخ بداية الإجازة'
-                                  : null,
-                            ),
-                          ),
-                          Gap(10.0), // مسافة بين الحقول
-                          // حقل عدد الأيام المسموح بها
-                          Expanded(
-                            child: DateFormField(
-                              labelText: 'تاريخ نهاية الإجازة',
-                              readOnly: true,
-                              controller: _leaveEndController,
-                              onDateSelected: (date) {
-                                setState(() {});
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      Gap(10.0),
-                      DateFormField(
-                        labelText: 'تاريخ المباشرة',
-                        controller: _resumptionController,
-                        onDateSelected: (date) {
+                            value!.isEmpty ? 'يرجى إدخال عدد الأيام' : null,
+                        onChanged: (value) {
                           setState(() {});
                         },
                       ),
-                      Gap(20.0),
+                      Gap(16.0), // مسافة بين الحقول
+                      // حقل عدد الأيام المسموح بها
+                      CustomTextField(
+                        controller: TextEditingController(text: "30"),
+                        readOnly: true,
+                        keyboardType: TextInputType.text,
+                        labelText: 'عدد الأيام المسموح بها',
+                        icon: Icons.pin_rounded,
+                      ),
+                      Gap(16.0), // مسافة بين الحقول
+                      DateFormFieldWidgetFS(
+                        days: int.tryParse(_daysController.text) ??
+                            0, // تمرير حقل عدد الأيام
+                        requestDateController:
+                            _requestDateController, // تمرير حقل تاريخ الطلب
+                        startDateController:
+                            _leaveStartController, // تمرير حقل تاريخ بدء الإجازة
+                        endDateController:
+                            _leaveEndController, // تمرير حقل تاريخ انتهاء الإجازة
+                        resumeDateController:
+                            _resumptionController, // تمرير حقل تاريخ العودة
+                      ),
+                      Gap(16.0),
                       LargeButton(
                         buttonText: 'إرسال الطلب',
+                        color: AppColors.primaryColor,
                         onPressed: _submitForm,
                       ),
                       Gap(20.0),
@@ -244,6 +193,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
           '_taskController': _taskController.text,
           '_departmentController': _departmentController.text,
           '_daysController': _daysController.text,
+          '_requestDateController': _requestDateController.text,
           '_leaveStartController': _leaveStartController.text,
           '_leaveEndController': _leaveEndController.text,
           '_resumptionController': _resumptionController.text,
@@ -264,6 +214,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
           '_daysController': _daysController.text,
+          '_requestDateController': _requestDateController.text,
           '_leaveStartController': _leaveStartController.text,
           '_leaveEndController': _leaveEndController.text,
           '_resumptionController': _resumptionController.text,

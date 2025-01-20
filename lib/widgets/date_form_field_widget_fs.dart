@@ -6,47 +6,54 @@ import '../widgets/date_form_field.dart';
 
 class DateFormFieldWidgetFS extends StatefulWidget {
   final int days;
+  final TextEditingController requestDateController;
+  final TextEditingController startDateController;
+  final TextEditingController endDateController;
+  final TextEditingController resumeDateController;
 
-  const DateFormFieldWidgetFS({super.key, required this.days});
+  const DateFormFieldWidgetFS({
+    super.key,
+    required this.days,
+    required this.requestDateController,
+    required this.startDateController,
+    required this.endDateController,
+    required this.resumeDateController,
+  });
 
   @override
   _DateFormFieldWidgetFSState createState() => _DateFormFieldWidgetFSState();
 }
 
 class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
-  final TextEditingController requestDateController = TextEditingController();
-  final TextEditingController startDateController = TextEditingController();
-  final TextEditingController endDateController = TextEditingController();
-  final TextEditingController resumeDateController = TextEditingController();
   final DateTime currentDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
     // تعبئة التاريخ الحالي في حقل تاريخ الطلب
-    requestDateController.text = DateFormat('yyyy-MM-dd').format(currentDate);
+    widget.requestDateController.text = DateFormat('yyyy-MM-dd').format(currentDate);
     // استماع لتغييرات تاريخ نهاية الإجازة لتحديث تاريخ المباشرة
-    endDateController.addListener(calculateResumeDate);
+    widget.endDateController.addListener(calculateResumeDate);
   }
 
   void calculateEndDate() {
-    if (widget.days <= 0 || startDateController.text.isEmpty) {
+    if (widget.days <= 0 || widget.startDateController.text.isEmpty) {
       setState(() {
-        endDateController.text = '';
+        widget.endDateController.text = '';
       });
       return;
     }
 
-    DateTime? startDate = DateTime.tryParse(startDateController.text);
+    DateTime? startDate = DateTime.tryParse(widget.startDateController.text);
     if (startDate == null) {
       setState(() {
-        endDateController.text = '';
+        widget.endDateController.text = '';
       });
       return;
     }
 
     DateTime tempDate = startDate;
-    int addedDays = 0;
+    int addedDays = 1;
 
     // إضافة عدد الأيام مع تجاوز أيام الجمعة والسبت
     while (addedDays < widget.days) {
@@ -58,15 +65,15 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
     }
 
     setState(() {
-      endDateController.text = DateFormat('yyyy-MM-dd').format(tempDate);
+      widget.endDateController.text = DateFormat('yyyy-MM-dd').format(tempDate);
     });
   }
 
   void calculateResumeDate() {
-    DateTime? endDate = DateTime.tryParse(endDateController.text);
+    DateTime? endDate = DateTime.tryParse(widget.endDateController.text);
     if (endDate == null) {
       setState(() {
-        resumeDateController.text = '';
+        widget.resumeDateController.text = '';
       });
       return;
     }
@@ -78,7 +85,7 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
         tempDate.weekday == DateTime.saturday);
 
     setState(() {
-      resumeDateController.text = DateFormat('yyyy-MM-dd').format(tempDate);
+      widget.resumeDateController.text = DateFormat('yyyy-MM-dd').format(tempDate);
     });
   }
 
@@ -92,7 +99,7 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
 
     if (pickedDate != null) {
       setState(() {
-        startDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+        widget.startDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
         calculateEndDate(); // تحديث تاريخ نهاية الإجازة
       });
     }
@@ -103,11 +110,9 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(title: 'إجازة زواج'),
-        const SizedBox(height: 16),
         // حقل تاريخ الطلب
         DateFormField(
-          controller: requestDateController,
+          controller: widget.requestDateController,
           readOnly: true,
           labelText: 'تاريخ الطلب',
           onDateSelected: (date) {},
@@ -115,7 +120,7 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
         const SizedBox(height: 16),
         // حقل تاريخ بدء الإجازة
         DateFormField(
-          controller: startDateController,
+          controller: widget.startDateController,
           labelText: 'تاريخ بدء الإجازة',
           validator: (value) {
             if (value == null || value.isEmpty) {
@@ -124,14 +129,16 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
             return null;
           },
           onDateSelected: (date) {
-            startDateController.text = DateFormat('yyyy-MM-dd').format(date!);
+            widget.startDateController.text = DateFormat('yyyy-MM-dd').format(date!);
             calculateEndDate(); // تحديث تاريخ نهاية الإجازة
           },
+          validator: (value) =>
+                            value!.isEmpty ? 'يرجى إدخال تاريخ بدء الإجازة' : null,
         ),
         const SizedBox(height: 16),
         // حقل تاريخ نهاية الإجازة
         DateFormField(
-          controller: endDateController,
+          controller: widget.endDateController,
           readOnly: true,
           labelText: 'تاريخ نهاية الإجازة',
           onDateSelected: (date) {},
@@ -139,7 +146,7 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
         const SizedBox(height: 16),
         // حقل تاريخ المباشرة
         DateFormField(
-          controller: resumeDateController,
+          controller: widget.resumeDateController,
           readOnly: true,
           labelText: 'تاريخ المباشرة',
           onDateSelected: (date) {},
@@ -150,10 +157,10 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
 
   @override
   void dispose() {
-    requestDateController.dispose();
-    startDateController.dispose();
-    endDateController.dispose();
-    resumeDateController.dispose();
+    widget.requestDateController.dispose();
+    widget.startDateController.dispose();
+    widget.endDateController.dispose();
+    widget.resumeDateController.dispose();
     super.dispose();
   }
 }

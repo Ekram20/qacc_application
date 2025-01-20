@@ -18,7 +18,7 @@ class _BottomNavigationBarEmployeesState
     extends State<BottomNavigationBarEmployees> {
   List _pageOptions = [
     HomePage(),
-    Center(child: Text('Page 2')),
+    AnnualLeaveRequest(),
     Center(child: Text('Page 3')),
     EmployeeFiles(),
   ];

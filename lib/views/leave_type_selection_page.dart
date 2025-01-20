@@ -55,7 +55,7 @@ class LeaveTypeSelectionPage extends StatelessWidget {
 
                               },
                               child: ImageTextCard(
-                                  image: 'assets/images/Medical_Bag.png',
+                                  image: 'assets/images/Fever.png',
                                   mainText: 'إجازة مرضية'),
                             ),
                           ),
