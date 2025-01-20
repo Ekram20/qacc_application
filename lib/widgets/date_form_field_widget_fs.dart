@@ -31,7 +31,8 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
   void initState() {
     super.initState();
     // تعبئة التاريخ الحالي في حقل تاريخ الطلب
-    widget.requestDateController.text = DateFormat('yyyy-MM-dd').format(currentDate);
+    widget.requestDateController.text =
+        DateFormat('yyyy-MM-dd').format(currentDate);
     // استماع لتغييرات تاريخ نهاية الإجازة لتحديث تاريخ المباشرة
     widget.endDateController.addListener(calculateResumeDate);
   }
@@ -85,7 +86,8 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
         tempDate.weekday == DateTime.saturday);
 
     setState(() {
-      widget.resumeDateController.text = DateFormat('yyyy-MM-dd').format(tempDate);
+      widget.resumeDateController.text =
+          DateFormat('yyyy-MM-dd').format(tempDate);
     });
   }
 
@@ -99,7 +101,8 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
 
     if (pickedDate != null) {
       setState(() {
-        widget.startDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+        widget.startDateController.text =
+            DateFormat('yyyy-MM-dd').format(pickedDate);
         calculateEndDate(); // تحديث تاريخ نهاية الإجازة
       });
     }
@@ -129,11 +132,10 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
             return null;
           },
           onDateSelected: (date) {
-            widget.startDateController.text = DateFormat('yyyy-MM-dd').format(date!);
+            widget.startDateController.text =
+                DateFormat('yyyy-MM-dd').format(date!);
             calculateEndDate(); // تحديث تاريخ نهاية الإجازة
           },
-          validator: (value) =>
-                            value!.isEmpty ? 'يرجى إدخال تاريخ بدء الإجازة' : null,
         ),
         const SizedBox(height: 16),
         // حقل تاريخ نهاية الإجازة

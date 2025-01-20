@@ -1,96 +1,127 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:qacc_application/widgets/image_text_card.dart';
-import 'package:qacc_application/widgets/section_header.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+
+class MessageScreen extends StatelessWidget {
+  final List<Message> messages = [
+    Message(content: 'مرحبًا بك!', sender: 'الإدارة', time: '10:49 ص'),
+    Message(
+        content: 'يرجى مراجعة الملف المرفق.',
+        sender: 'الإدارة',
+        time: '11:15 ص',
+        attachment: 'file.pdf'),
+    Message(
+        content: 'تحديثات جديدة مرفقة.',
+        sender: 'الإدارة',
+        time: '12:30 م',
+        attachment: 'image.png'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-          appBar: AppBar(),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Gap(20),
-                SectionHeader(title: 'حدد نوع الإجازة'),
-                Padding(
-                  padding: const EdgeInsets.all(30.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Google_Calendar.png',
-                                mainText: 'إجازة سنوية'),
-                          ),
-                          Gap(20),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/medical_bag.png',
-                                mainText: 'إجازة مرضية'),
-                          ),
-                        ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('رسائلك'),
+        centerTitle: true,
+      ),
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Container(
+          color: Colors.white, // خلفية بيضاء
+          child: ListView.builder(
+            padding: EdgeInsets.only(top: 10.0),
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              final message = messages[index];
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200], // لون رمادي هادئ للفقاعة
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomRight: Radius.circular(12),
+                        topRight: Radius.circular(12),
                       ),
-                      Gap(20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Siren.png',
-                                mainText: 'إجازة طارئة'),
+                    ),
+                    padding: const EdgeInsets.all(16.0),
+                    constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.75),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'من: ${message.sender}',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        SizedBox(height: 8),
+                        Text(message.content, style: TextStyle(fontSize: 16)),
+                        if (message.attachment != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: GestureDetector(
+                              onTap: () async {
+                                final url = message.attachment!;
+                                if (await canLaunch(url)) {
+                                  await launch(url);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('تعذر فتح الملف'),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.attach_file, color: Colors.blue),
+                                  SizedBox(width: 8),
+                                  // إضافة TextOverflow.ellipsis هنا
+                                  Flexible(
+                                    child: Text(
+                                      message.attachment!,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: Colors.blue, fontSize: 14),
+                                    ),
+                                  ),
+                                ],                              ),
+                            ),
                           ),
-                          Gap(20),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/UNICEF.png',
-                                mainText: 'إجازة أمومة'),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Text(
+                            message.time,
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
                           ),
-                        ],
-                      ),
-                      Gap(20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Diamond_Ring.png',
-                                mainText: 'إجازة الزواج'),
-                          ),
-                          Gap(20),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Paper.png',
-                                mainText: 'إجازة الوفاة'),
-                          ),
-                        ],
-                      ),
-                      Gap(20),
-                                            Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Kaaba.png',
-                                mainText: 'إجازة الحج'),
-                          ),
-                          Gap(20),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Grades.png',
-                                mainText: 'إجازة الإمتحانات'),
-                          ),
-                        ],
-                      ),
-                      Gap(20),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
-          )),
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
+}
+
+class Message {
+  final String content;
+  final String sender;
+  final String time;
+  final String? attachment;
+
+  Message({
+    required this.content,
+    required this.sender,
+    required this.time,
+    this.attachment,
+  });
 }

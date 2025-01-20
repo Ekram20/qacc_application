@@ -13,7 +13,6 @@ class TaskCheckForm extends StatelessWidget {
     required this.pdfTitle,
     required this.selectedOption,
     required this.onOptionChanged,
-    required this.taskDate,
     required this.controller,
     required this.file,
     required this.openFilePicker,
@@ -34,7 +33,6 @@ class TaskCheckForm extends StatelessWidget {
   final String pdfTitle;
   final String? selectedOption;
   final ValueChanged<String?> onOptionChanged;
-  final DateTime? taskDate;
   final TextEditingController controller;
   final File? file;
   final Function openFilePicker;

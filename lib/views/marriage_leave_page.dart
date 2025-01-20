@@ -79,7 +79,6 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                     });
                   },
                   labelDateText: 'تاريخ التكليف ',
-                  taskDate: null,
                   controller: taskDateController,
                   file: _file,
                   openFilePicker: _openFilePicker,

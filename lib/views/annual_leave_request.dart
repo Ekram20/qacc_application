@@ -20,33 +20,33 @@ class AnnualLeaveRequest extends StatefulWidget {
 
 class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   final _formKey = GlobalKey<FormState>();
+
+  // متغير لتخزين مسار الملف المختار
+  File? _file;
   bool isSubmitted = false; // لتتبع حالة الإرسال
 
   String? _selectedOption = "نعم"; // القيمة المختارة
   String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
-  DateTime? _taskDate; // تاريخ التكليف
-  DateTime? _requestDate; // تالريخ الطلب
-  DateTime? _leaveStartDate;
-  DateTime? _leaveEndDate;
-  DateTime? _resumptionDate;
+
   // تعريف متغير للتحكم في تاريخ التكليف
-  TextEditingController _taskDateController = TextEditingController();
-  // تعريف متغير للتحكم في تاريخ الطلب
-  TextEditingController _requestDateController = TextEditingController();
+  TextEditingController taskDateController = TextEditingController();
+  // التحكم في حقل رقم الكتاب
+  TextEditingController bookNumberController = TextEditingController();
+  // التحكم في حقل المهمة
+  TextEditingController taskController = TextEditingController();
+  // التحكم في حقل الإدارة
+  TextEditingController departmentController = TextEditingController();
+
   // تعريف متغير للتحكم في عدد الأيام
-  TextEditingController _daysController = TextEditingController();
-
-  // التحكم في الحقول الإضافية
-  TextEditingController _bookNumberController = TextEditingController();
-  TextEditingController _taskController = TextEditingController();
-  TextEditingController _departmentController = TextEditingController();
-
-  TextEditingController _leaveStartController = TextEditingController();
-  TextEditingController _leaveEndController = TextEditingController();
-  TextEditingController _resumptionController = TextEditingController();
-
-  // متغير لتخزين مسار الملف المختار
-  File? _file;
+  TextEditingController daysController = TextEditingController();
+  // تعريف متغير للتحكم في تاريخ الطلب
+  TextEditingController requestDateController = TextEditingController();
+  // تعريف متغير للتحكم في تاريخ البداية
+  TextEditingController leaveStartController = TextEditingController();
+  // تعريف متغير للتحكم في تاريخ نهاية
+  TextEditingController leaveEndController = TextEditingController();
+  // تعريف متغير للتحكم في تاريخ المباشرة
+  TextEditingController resumptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -87,8 +87,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                     });
                   },
                   labelDateText: 'تاريخ التكليف',
-                  taskDate: _taskDate,
-                  controller: _taskDateController,
+                  controller: taskDateController,
                   file: _file,
                   openFilePicker: _openFilePicker,
                   dateValidator: (value) =>
@@ -103,18 +102,17 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   },
                   onDateSelected: (date) {
                     setState(() {
-                      _taskDate = date;
-                      _taskDateController.text =
-                          "${_taskDate!.year}-${_taskDate!.month}-${_taskDate!.day}";
+                      taskDateController.text =
+                          "${date.year}-${date.month}-${date.day}";
                     });
                   },
-                  bookNumberController: _bookNumberController,
+                  bookNumberController: bookNumberController,
                   bookNumberValidator: (value) =>
                       value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
-                  taskController: _taskController,
+                  taskController: taskController,
                   taskValidator: (value) =>
                       value!.isEmpty ? 'يرجى إدخال المهمة' : null,
-                  departmentController: _departmentController,
+                  departmentController: departmentController,
                   departmentValidator: (value) =>
                       value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
                 ),
@@ -123,7 +121,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   child: Column(
                     children: [
                       CustomTextField(
-                        controller: _daysController,
+                        controller: daysController,
                         keyboardType: TextInputType.number,
                         labelText: 'أدخل عدد الأيام',
                         icon: Icons.onetwothree_outlined,
@@ -144,16 +142,16 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                       ),
                       Gap(16.0), // مسافة بين الحقول
                       DateFormFieldWidgetFS(
-                        days: int.tryParse(_daysController.text) ??
+                        days: int.tryParse(daysController.text) ??
                             0, // تمرير حقل عدد الأيام
                         requestDateController:
-                            _requestDateController, // تمرير حقل تاريخ الطلب
+                            requestDateController, // تمرير حقل تاريخ الطلب
                         startDateController:
-                            _leaveStartController, // تمرير حقل تاريخ بدء الإجازة
+                            leaveStartController, // تمرير حقل تاريخ بدء الإجازة
                         endDateController:
-                            _leaveEndController, // تمرير حقل تاريخ انتهاء الإجازة
+                            leaveEndController, // تمرير حقل تاريخ انتهاء الإجازة
                         resumeDateController:
-                            _resumptionController, // تمرير حقل تاريخ العودة
+                            resumptionController, // تمرير حقل تاريخ العودة
                       ),
                       Gap(16.0),
                       LargeButton(
@@ -187,16 +185,16 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
           '_selectedOption': _selectedOption,
-          '_taskDate': _taskDateController.text,
+          'taskDateController': taskDateController.text,
           '_file': _file,
-          '_bookNumberController': _bookNumberController.text,
-          '_taskController': _taskController.text,
-          '_departmentController': _departmentController.text,
-          '_daysController': _daysController.text,
-          '_requestDateController': _requestDateController.text,
-          '_leaveStartController': _leaveStartController.text,
-          '_leaveEndController': _leaveEndController.text,
-          '_resumptionController': _resumptionController.text,
+          'bookNumberController': bookNumberController.text,
+          'taskController': taskController.text,
+          'departmentController': departmentController.text,
+          'daysController': daysController.text,
+          'requestDateController': requestDateController.text,
+          'leaveStartController': leaveStartController.text,
+          'leaveEndController': leaveEndController.text,
+          'resumptionController': resumptionController.text,
         };
 
         // عرض رسالة نجاح بعد إرسال البيانات
@@ -213,11 +211,11 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
       if (_formKey.currentState!.validate()) {
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
-          '_daysController': _daysController.text,
-          '_requestDateController': _requestDateController.text,
-          '_leaveStartController': _leaveStartController.text,
-          '_leaveEndController': _leaveEndController.text,
-          '_resumptionController': _resumptionController.text,
+          'daysController': daysController.text,
+          'requestDateController': requestDateController.text,
+          'leaveStartController': leaveStartController.text,
+          'leaveEndController': leaveEndController.text,
+          'resumptionController': resumptionController.text,
         };
 
         // عرض رسالة نجاح بعد إرسال البيانات
