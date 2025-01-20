@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
+
 import 'package:qacc_application/widgets/image_text_card.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 
@@ -52,7 +53,8 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                           Expanded(
                             child: InkWell(
                               onTap: (){
-
+                                context.router.push(SickLeaveRequest());
+                                
                               },
                               child: ImageTextCard(
                                   image: 'assets/images/Fever.png',

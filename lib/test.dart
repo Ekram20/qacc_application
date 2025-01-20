@@ -20,10 +20,13 @@ class MessageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('رسائلك'),
-        centerTitle: true,
-      ),
+
+        appBar: AppBar(
+          title:
+              Text('المحفوظات', style: Theme.of(context).textTheme.bodySmall),
+          centerTitle: true,
+        ),
+
       body: Directionality(
         textDirection: TextDirection.rtl,
         child: Container(
@@ -93,7 +96,7 @@ class MessageScreen extends StatelessWidget {
                             ),
                           ),
                         Align(
-                          alignment: Alignment.bottomRight,
+                          alignment: Alignment.bottomLeft,
                           child: Text(
                             message.time,
                             style: TextStyle(color: Colors.grey, fontSize: 12),

@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/test.dart';
-import 'package:qacc_application/views/annual_leave_request.dart';
 import 'package:qacc_application/views/employee_files.dart';
 import 'package:qacc_application/views/home_page.dart';
 
