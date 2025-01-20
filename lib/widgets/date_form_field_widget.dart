@@ -119,12 +119,19 @@ class _DateFormFieldWidgetState extends State<DateFormFieldWidget> {
         DateFormField(
           controller: widget.startDateController,
           labelText: 'تاريخ بدء الإجازة',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'يرجى إدخال تاريخ بدء الإجازة';
+            }
+            return null;
+          },
           onDateSelected: (date) {
             widget.startDateController.text =
                 DateFormat('yyyy-MM-dd').format(date!);
-            calculateEndDate(); // تحديث تاريخ نهاية الإجازة
+                calculateEndDate(); // تحديث تاريخ نهاية الإجازة
           },
         ),
+
         const SizedBox(height: 16),
         // حقل تاريخ نهاية الإجازة
         DateFormField(

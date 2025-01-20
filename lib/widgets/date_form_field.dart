@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:qacc_application/models/app_colors.dart';
+
+import '../models/app_colors.dart';
 
 class DateFormField extends StatelessWidget {
   final TextEditingController controller;
   final DateTime? initialDate;
   final ValueChanged<DateTime?> onDateSelected;
   final String? Function(String?)? validator;
-  final String labelText; // إضافة متغير لنص الحقل
-  final bool readOnly; // خاصية جديدة
+  final String labelText;
+  final bool readOnly;
 
   DateFormField({
     required this.controller,
@@ -15,7 +16,7 @@ class DateFormField extends StatelessWidget {
     this.initialDate,
     this.validator,
     required this.labelText,
-    this.readOnly = false, // إضافة خاصية readOnly مع قيمة افتراضية
+    this.readOnly = false,
   });
 
   @override
@@ -24,8 +25,6 @@ class DateFormField extends StatelessWidget {
       controller: controller,
       readOnly: readOnly,
       style: Theme.of(context).textTheme.bodyMedium,
-      // تخصيص تنسيق النص
-
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: Theme.of(context).textTheme.bodyMedium,
@@ -40,8 +39,9 @@ class DateFormField extends StatelessWidget {
           borderSide: BorderSide(color: AppColors.secondaryColor.shade600),
         ),
       ),
-      validator: validator,
+      validator: validator, // إضافة التحقق هنا
       onTap: () async {
+        if (readOnly) return; // تخطي النقر إذا كان الحقل للقراءة فقط
         DateTime? date = await showDatePicker(
           context: context,
           initialDate: initialDate ?? DateTime.now(),
@@ -49,7 +49,7 @@ class DateFormField extends StatelessWidget {
           lastDate: DateTime(2100),
         );
         if (date == null) return;
-        onDateSelected(date); // استدعاء دالة العودة مع التاريخ الجديد
+        onDateSelected(date);
       },
     );
   }
