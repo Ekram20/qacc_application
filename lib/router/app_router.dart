@@ -19,6 +19,6 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: ExamsLeave.page),
         AutoRoute(page: DeathLeave.page),
         AutoRoute(page: EmergencyLeaveRequest.page),
-
+        AutoRoute(page: MaternityLeaveRequest.page),
       ];
 }
