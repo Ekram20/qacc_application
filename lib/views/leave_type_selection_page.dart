@@ -106,7 +106,7 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                           Expanded(
                             child: InkWell(
                               onTap: (){
-
+                                context.router.push(DeathLeave());
                               },
                               child: ImageTextCard(
                                   image: 'assets/images/Paper.png',
@@ -121,7 +121,7 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                           Expanded(
                             child: InkWell(
                               onTap: (){
-
+                                context.router.push(HajjLeave());
                               },
                               child: ImageTextCard(
                                   image: 'assets/images/Kaaba.png',
@@ -132,7 +132,7 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                           Expanded(
                             child: InkWell(
                               onTap: (){
-
+                                context.router.push(ExamsLeave());
                               },
                               child: ImageTextCard(
                                   image: 'assets/images/Grades.png',

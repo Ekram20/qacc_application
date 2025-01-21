@@ -37,7 +37,6 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("طلب إجازة زواج"),
         leading: IconButton(
           onPressed: () {
             context.router.pop();
@@ -62,12 +61,11 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                   image: 'assets/images/Info.png',
                   onImageTap: () {},
                 ),
-                const Gap(10),
+                const Gap(20),
                 NoteBox(
                   firstNote: "مدة هذه الإجازة اسبوعان",
                   secondNotes: "تمنح هذه الاجازة مرة واحدة فقط",
                 ),
-                Gap(10),
                 TaskCheckForm(
                   pdfTitle: 'إرفاق صورة من كتاب او قرار التكليف',
                   selectedOption: _selectedOption,
@@ -193,6 +191,14 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
         _selectedOption = "نعم";
         isSubmitted = false;
       });
+    } else {
+      // عرض رسالة خطأ إذا كان هناك مشكلة في التحقق
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("يرجى التأكد من تعبئة جميع الحقول المطلوبة."),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
