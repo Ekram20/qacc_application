@@ -69,6 +69,7 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                           Expanded(
                             child: InkWell(
                               onTap: (){
+                                context.router.push(EmergencyLeaveRequest());
 
                               },
                               child: ImageTextCard(

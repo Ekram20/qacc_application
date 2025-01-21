@@ -205,6 +205,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
             backgroundColor: Colors.green,
           ),
         );
+        _resetFields();
       }
     } else if (_selectedOption == "لا") {
       // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
@@ -226,8 +227,29 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
             backgroundColor: Colors.green,
           ),
         );
+        _resetFields();
       }
     }
+  }
+
+// دالة لإعادة تعيين الحقول
+  void _resetFields() {
+    setState(() {
+      // إعادة تعيين قيم الحقول
+      // إعادة تعيين قيم الحقول
+      taskDateController.clear();
+      bookNumberController.clear();
+      taskController.clear();
+      departmentController.clear();
+      daysController.clear();
+      leaveStartController.clear();
+      leaveEndController.clear();
+      resumptionController.clear();
+
+      // إعادة تعيين الملفات والمتغيرات الأخرى
+      _file = null;
+      isSubmitted = false;
+    });
   }
 
   // فتح نافذة لاختيار الملف

@@ -194,6 +194,7 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
     setState(() {
       isSubmittedStateNo = true; // تعيين حالة الإرسال إلى true
     });
+
     if (_selectedOption == "نعم") {
       setState(() {
         isSubmitted = true; // تعيين حالة الإرسال إلى true
@@ -203,6 +204,9 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
         // تحقق إضافي لضمان أن الملف موجود عند اختيار "نعم"
         if (_selectedOption == "نعم" && _file == null) {
           return; // إيقاف الإرسال إذا لم يتم اختيار ملف
+        }
+        if (attachedMedicalFile == null) {
+          return; // إيقاف الإرسال إذا كان الملف الطبي فارغًا
         }
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
@@ -228,10 +232,14 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
             backgroundColor: Colors.green,
           ),
         );
+        _resetFields();
       }
     } else if (_selectedOption == "لا") {
       // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
       if (_formKey.currentState!.validate()) {
+        if (attachedMedicalFile == null) {
+          return; // إيقاف الإرسال إذا كان الملف الطبي فارغًا
+        }
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
           'daysController': daysController.text,
@@ -250,8 +258,30 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
             backgroundColor: Colors.green,
           ),
         );
+        _resetFields();
       }
     }
+  }
+
+// دالة لإعادة تعيين الحقول
+  void _resetFields() {
+    setState(() {
+      // إعادة تعيين قيم الحقول
+      taskDateController.clear();
+      bookNumberController.clear();
+      taskController.clear();
+      departmentController.clear();
+      daysController.clear();
+      leaveStartController.clear();
+      leaveEndController.clear();
+      resumptionController.clear();
+
+      // إعادة تعيين الملفات والمتغيرات الأخرى
+      _file = null;
+      attachedMedicalFile = null;
+      isSubmitted = false;
+      isSubmittedStateNo = false;
+    });
   }
 
   // فتح نافذة لاختيار الملف
