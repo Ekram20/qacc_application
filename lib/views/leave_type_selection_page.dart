@@ -81,7 +81,7 @@ class LeaveTypeSelectionPage extends StatelessWidget {
                           Expanded(
                             child: InkWell(
                               onTap: (){
-
+                                context.router.push(MaternityLeaveRequest());
                               },
                               child: ImageTextCard(
                                   image: 'assets/images/UNICEF.png',
