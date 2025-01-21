@@ -100,7 +100,7 @@ abstract class $AppRouter extends _i16.RootStackRouter {
     MarriageLeaveRoute.name: (routeData) {
       return _i16.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i12.MarriageLeavePage(),
+        child:  _i12.MarriageLeavePage(),
       );
     },
     MaternityLeaveRequest.name: (routeData) {

@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/widgets/note_box.dart';
 import '../widgets/date_form_field_widget.dart';
+import '../widgets/pdf_widget.dart';
 import '../widgets/section_header.dart';
 import '../widgets/large_button.dart';
 import '../widgets/task_check_form.dart';
@@ -30,8 +31,14 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
 
   final _formKey = GlobalKey<FormState>();
   String? _selectedOption = "نعم";
+
   bool isSubmitted = false;
   File? _file;
+
+  File? attachedMarriageFile;
+  String? _attachedMarriageFileName;
+  bool isSubmittedStateNo = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +124,21 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                         endDateController: endDateController,
                         resumeDateController: resumeDateController,
                       ),
+                      Gap(15),
+                      PdfWidget(
+                        title: 'إرفاق صورة من وثيقة الزواج',
+                        file: attachedMarriageFile,
+                        openFilePicker: _openMarriageFilePicker,
+                        onFilePicked: (file) {
+                          setState(() {
+                            attachedMarriageFile = file;
+                          });
+                        },
+                        validator: (value) =>
+                        attachedMarriageFile == null && isSubmittedStateNo
+                            ? 'يرجى إرفاق صورة من وثيقة الزواج '
+                            : null,
+                      ),
                       const Gap(20),
                       LargeButton(
                         buttonText: 'إرسال الطلب',
@@ -151,54 +173,108 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
 
   void _submitForm() {
     setState(() {
-      isSubmitted = true;
+      isSubmittedStateNo = true; // تعيين حالة الإرسال إلى true
     });
 
-    if (_formKey.currentState!.validate() && (_selectedOption != "نعم" || _file != null)) {
-      final requestData = {
-        'requestDate': requestDateController.text,
-        'startDate': startDateController.text,
-        'endDate': endDateController.text,
-        'resumeDate': resumeDateController.text,
-        'taskDate': taskDateController.text,
-        'bookNumber': bookNumberController.text,
-        'task': taskController.text,
-        'department': departmentController.text,
-        'fileAttached': _file != null,
-      };
-
-      // عرض رسالة النجاح
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-         // content: Text("تم إرسال البيانات بنجاح: $requestData"),
-          content: Text("تم إرسال البيانات بنجاح: "),
-
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      // تفريغ جميع الحقول
+    if (_selectedOption == "نعم") {
       setState(() {
-        requestDateController.clear();
-        startDateController.clear();
-        endDateController.clear();
-        resumeDateController.clear();
-        taskDateController.clear();
-        bookNumberController.clear();
-        taskController.clear();
-        departmentController.clear();
-        _file = null;
-        _selectedOption = "نعم";
-        isSubmitted = false;
+        isSubmitted = true; // تعيين حالة الإرسال إلى true
       });
-    } else {
-      // عرض رسالة خطأ إذا كان هناك مشكلة في التحقق
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("يرجى التأكد من تعبئة جميع الحقول المطلوبة."),
-          backgroundColor: Colors.red,
-        ),
-      );
+      // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
+      if (_formKey.currentState!.validate()) {
+        // تحقق إضافي لضمان أن الملف موجود عند اختيار "نعم"
+        if (_selectedOption == "نعم" && _file == null) {
+          return; // إيقاف الإرسال إذا لم يتم اختيار ملف
+        }
+        if (attachedMarriageFile == null) {
+          return; // إيقاف الإرسال إذا كان الملف الطبي فارغًا
+        }
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          '_selectedOption': _selectedOption,
+          'taskDate': taskDateController.text,
+          '_file': _file,
+          'bookNumber': bookNumberController.text,
+          'task': taskController.text,
+          'department': departmentController.text,
+          'requestDate': requestDateController.text,
+          'startDate': startDateController.text,
+          'endDate': endDateController.text,
+          'resumeDate': resumeDateController.text,
+        };
+
+        // عرض رسالة نجاح بعد إرسال البيانات
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('تم إرسال البيانات بنجاح: $requestData'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _resetFields(); // إعادة تعيين الحقول
+      }
+    } else if (_selectedOption == "لا") {
+      // إذا تم اختيار "لا" فقط يتم التحقق من الحقول
+      if (_formKey.currentState!.validate()) {
+        if (attachedMarriageFile == null) {
+          return; // إيقاف الإرسال إذا كان الملف الطبي فارغًا
+        }
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          'requestDate': requestDateController.text,
+          'startDate': startDateController.text,
+          'endDate': endDateController.text,
+          'resumeDate': resumeDateController.text,
+          'taskDate': taskDateController.text,
+          'bookNumber': bookNumberController.text,
+          'task': taskController.text,
+          'department': departmentController.text,
+          'fileAttached': _file != null,
+        };
+
+        // عرض رسالة نجاح بعد إرسال البيانات
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('تم إرسال البيانات بنجاح: $requestData'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _resetFields(); // إعادة تعيين الحقول
+      }
+    }
+  }
+
+  void _resetFields() {
+    setState(() {
+      requestDateController.clear();
+      startDateController.clear();
+      endDateController.clear();
+      resumeDateController.clear();
+      taskDateController.clear();
+      bookNumberController.clear();
+      taskController.clear();
+      departmentController.clear();
+      _file = null;
+      _selectedOption = "نعم";
+      isSubmitted = false;
+      isSubmittedStateNo = false;
+      attachedMarriageFile = null;
+    });
+  }
+
+  // فتح نافذة لاختيار الملف الطبي
+  void _openMarriageFilePicker() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null) {
+      setState(() {
+        _attachedMarriageFileName = result.files.single.name;
+        attachedMarriageFile =
+            File(result.files.single.path!); // حفظ المسار للملف الطبي
+      });
     }
   }
 
