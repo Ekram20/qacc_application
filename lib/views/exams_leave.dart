@@ -37,8 +37,8 @@ class _ExamsLeaveState extends State<ExamsLeave> {
   bool isSubmitted = false;
   File? _file;
 
-  File? attachedMarriageFile;
-  String? _attachedMarriageFileName;
+  File? attachedExamFile;
+  String? _attachedExamFileName;
   bool isSubmittedStateNo = false;
 
 
@@ -141,17 +141,17 @@ class _ExamsLeaveState extends State<ExamsLeave> {
                       ),
                       Gap(15),
                       PdfWidget(
-                        title: 'إرفاق صورة من نتيجة الامتحانات',
-                        file: attachedMarriageFile,
-                        openFilePicker: _openMarriageFilePicker,
+                        title: 'يرجى إرفاق جدول الإمتحانات و ورقة تنزيل المواد ',
+                        file: attachedExamFile,
+                        openFilePicker: _openExamFilePicker,
                         onFilePicked: (file) {
                           setState(() {
-                            attachedMarriageFile = file;
+                            attachedExamFile = file;
                           });
                         },
                         validator: (value) =>
-                        attachedMarriageFile == null && isSubmittedStateNo
-                            ? 'يرجى إرفاق صورة من نتيجة الامتحانات '
+                        attachedExamFile == null && isSubmittedStateNo
+                            ? 'يرجى إرفاق جدول الإمتحانات و ورقة تنزيل المواد '
                             : null,
                       ),
                       const Gap(20),
@@ -196,7 +196,7 @@ class _ExamsLeaveState extends State<ExamsLeave> {
 
       // التحقق من الحقول عند اختيار "نعم"
       if (_formKey.currentState!.validate()) {
-        // التحقق من وجود الملف إذا تم اختيار "نعم"
+        // تحقق إضافي لضمان أن الملف موجود
         if (_file == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -207,8 +207,18 @@ class _ExamsLeaveState extends State<ExamsLeave> {
           return;
         }
 
-        // إضافة البيانات إلى الكائن requestData
-        Map<String, dynamic> requestData = {
+        if (attachedExamFile == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("يرجى إرفاق جدول الإمتحانات و ورقة تنزيل المواد ."),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // إعداد البيانات للإرسال
+        final requestData = {
           '_selectedOption': _selectedOption,
           'taskDate': taskDateController.text,
           '_file': _file,
@@ -234,19 +244,18 @@ class _ExamsLeaveState extends State<ExamsLeave> {
     } else if (_selectedOption == "لا") {
       // التحقق من الحقول عند اختيار "لا"
       if (_formKey.currentState!.validate()) {
-        // التحقق من وجود الملف الطبي
-        if (attachedMarriageFile == null) {
+        if (attachedExamFile == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("يرجى إرفاق الملف الطبي."),
+              content: Text("يرجى إرفاق جدول الإمتحانات و ورقة تنزيل المواد ."),
               backgroundColor: Colors.red,
             ),
           );
           return;
         }
 
-        // إضافة البيانات إلى الكائن requestData
-        Map<String, dynamic> requestData = {
+        // إعداد البيانات للإرسال
+        final requestData = {
           'requestDate': requestDateController.text,
           'startDate': startDateController.text,
           'endDate': endDateController.text,
@@ -267,14 +276,6 @@ class _ExamsLeaveState extends State<ExamsLeave> {
         );
         _resetFields(); // إعادة تعيين الحقول
       }
-    } else {
-      // عرض رسالة خطأ عند وجود مشكلة في التحقق
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("يرجى التأكد من تعبئة جميع الحقول المطلوبة."),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
@@ -293,12 +294,12 @@ class _ExamsLeaveState extends State<ExamsLeave> {
       _selectedOption = "نعم";
       isSubmitted = false;
       isSubmittedStateNo = false;
-      attachedMarriageFile = null;
+      attachedExamFile = null;
     });
   }
 
   // فتح نافذة لاختيار الملف وثيقة نتيجة الامتحان
-  void _openMarriageFilePicker() async {
+  void _openExamFilePicker() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
@@ -306,8 +307,8 @@ class _ExamsLeaveState extends State<ExamsLeave> {
 
     if (result != null) {
       setState(() {
-        _attachedMarriageFileName = result.files.single.name;
-        attachedMarriageFile =
+        _attachedExamFileName = result.files.single.name;
+        attachedExamFile =
             File(result.files.single.path!); // حفظ المسار للملف الطبي
       });
     }
