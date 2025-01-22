@@ -20,7 +20,7 @@ final List<Message> messages = [
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('المحفوظات', style: Theme.of(context).textTheme.bodySmall),
+        title: Text('محفوظات المدير العام', style: Theme.of(context).textTheme.bodySmall),
         centerTitle: true,
       ),
       body: Directionality(
