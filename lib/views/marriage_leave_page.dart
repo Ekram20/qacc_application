@@ -39,12 +39,6 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
   String? _attachedMarriageFileName;
   bool isSubmittedStateNo = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // إعداد التاريخ الحالي في حقل تاريخ الطلب
-    requestDateController.text = "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +246,6 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
 
   void _resetFields() {
     setState(() {
-      requestDateController.clear();
       startDateController.clear();
       endDateController.clear();
       resumeDateController.clear();
@@ -268,7 +261,7 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
     });
   }
 
-  // فتح نافذة لاختيار الملف الطبي
+  // فتح نافذة لاختيار الملف وثيقة الزواج
   void _openMarriageFilePicker() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
