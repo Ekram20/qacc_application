@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:qacc_application/models/app_colors.dart';
 
 class LeaveReasonField extends StatelessWidget {
+  final TextEditingController controller;
+
   final Function(String)? onChanged; // لمعالجة النص المدخل
   final String? Function(String?)? validator; // للتحقق من صحة النص
 
   const LeaveReasonField({
     Key? key,
+    required this.controller,
     this.onChanged,
     this.validator,
   }) : super(key: key);
@@ -14,6 +17,7 @@ class LeaveReasonField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: controller,
       textAlign: TextAlign.start,
       maxLines: 3, // لجعل الحقل متعدد الأسطر
       decoration: InputDecoration(

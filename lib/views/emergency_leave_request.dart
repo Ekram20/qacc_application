@@ -25,7 +25,6 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
 
   File? _file;
   String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
-  bool isSubmitted = false; // لتتبع حالة الإرسال
 
   // تعريف متغير للتحكم في عدد الأيام
   TextEditingController daysController = TextEditingController();
@@ -81,13 +80,24 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
                         validator: (value) =>
                             value!.isEmpty ? 'يرجى إدخال عدد الأيام' : null,
                         onChanged: (value) {
+                          if (int.tryParse(value) != null &&
+                              int.parse(value) > 3) {
+                            daysController.clear();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('لا يمكن تجاوز 3 أيام في كل طلب'),
+                                duration: Duration(seconds: 2),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                           setState(() {});
                         },
                       ),
                       Gap(16.0), // مسافة بين الحقول
                       // حقل عدد الأيام المسموح بها
                       CustomTextField(
-                        controller: TextEditingController(text: "30"),
+                        controller: TextEditingController(text: "12"),
                         readOnly: true,
                         keyboardType: TextInputType.text,
                         labelText: 'عدد الأيام المسموح بها',
@@ -95,9 +105,7 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
                       ),
                       Gap(16.0),
                       LeaveReasonField(
-                        onChanged: (value) {
-                          leaveReasonController.text = value; // حفظ النص
-                        },
+                        controller: leaveReasonController,
                       ),
                       Gap(16.0),
                       DateFormFieldWidget(
@@ -110,7 +118,7 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
                       ),
                       Gap(16.0),
                       PdfWidget(
-                        title: 'إرفاق ملف',
+                        title: 'إرفاق ملف (اختياري)',
                         file: _file,
                         openFilePicker: _openFilePicker,
                         onFilePicked: (file) {
@@ -118,9 +126,7 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
                             _file = file;
                           });
                         },
-                        validator: (value) => _file == null && isSubmitted
-                            ? 'يرجى إرفاق ملف'
-                            : null,
+                        validator: (value) => null, // الملف اختياري الآن
                       ),
 
                       Gap(10.0),
@@ -142,16 +148,9 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
   }
 
   void _submitForm() {
-    setState(() {
-      isSubmitted = true; // تعيين حالة الإرسال إلى true
-    });
 
     // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
     if (_formKey.currentState!.validate()) {
-      // تحقق إضافي لضمان أن الملف موجود عند اختيار "نعم"
-      if (_file == null) {
-        return; // إيقاف الإرسال إذا لم يتم اختيار ملف
-      }
       // إضافة البيانات إلى الكائن requestData
       Map<String, dynamic> requestData = {
         'daysController': daysController.text,
@@ -180,7 +179,6 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
         leaveEndController.clear();
         resumptionController.clear();
         _file = null; // إعادة تعيين الملف
-        isSubmitted = false;
       });
     }
   }
