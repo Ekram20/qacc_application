@@ -1,7 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:qacc_application/models/app_colors.dart';
-import 'package:qacc_application/test.dart';
+import 'package:qacc_application/views/archives_admin_screen.dart';
+import 'package:qacc_application/views/archives_screen.dart';
 import 'package:qacc_application/views/employee_files.dart';
 import 'package:qacc_application/views/home_page.dart';
 
@@ -18,8 +19,8 @@ class _BottomNavigationBarEmployeesState
     extends State<BottomNavigationBarEmployees> {
   List _pageOptions = [
     HomePage(),
-    MessageScreen(),
-    Center(child: Text('Page 3')),
+    ArchivesScreen(),
+    ArchivesAdminScreen(),
     EmployeeFiles(),
   ];
 
