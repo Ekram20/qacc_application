@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           ),
           bodyLarge: TextStyle(
             fontSize: 20,
-            color: AppColors.secondaryColor.shade500,
+            color: AppColors.secondaryColor.shade900,
             fontFamily: 'Cairo',
             fontWeight: FontWeight.bold,
           ), // نص كبير

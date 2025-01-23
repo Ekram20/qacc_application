@@ -3,9 +3,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
 import 'package:qacc_application/widgets/date_form_field_widget_fs.dart';
 import 'package:qacc_application/widgets/large_button.dart';
+import 'package:qacc_application/widgets/leave_info_page.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:qacc_application/widgets/task_check_form.dart';
@@ -74,7 +76,22 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                 SectionHeader(
                   title: 'نموذج طلب إجازة سنوية',
                   image: 'assets/images/Info.png',
-                  onImageTap: () {},
+                  onImageTap: () {
+                    context.router.push(LeaveInfoRoute(
+                      leaveName: 'الإجازة السنوية :',
+                      leaveDuration:
+                          'تكون الاجازة السنوية ثلاثين يوماً في السنة وخمسة واربعين يوماً لمن بلغ سن الخمسين سنة او تجاوزت مدة خدمته عشرون عاماً.',
+                      procedureStepsTitle: 'خطوات اجراء الإجازة :',
+                      stepDescription:
+                          'تعبئة نموذج طلب الاجازة رقم (A2) من قبل الموظف ويقدم لرئيس المباشر',
+                      stepOne:
+                          'بعد موافقة الرئيس المباشرة على طلب الاجازة يعبنه النموذج رقم (B2) من جزئيين الجزء الاول من فبل الموظف والجزء الثاني من فبل الموظف المختص بالإجازات',
+                      stepTwo:
+                          'لا يعتبر الموظف قد تحصل على الاجازة الابعد اعتماد النموذج رقم (B2) من الرئيس المباشر والرئيس الاعلى للموظف',
+                      stepThree:
+                          'على الموظف تقدم على الإجازة فبل اسبوع من التاريخ المراد الحصول فيه على الاجازة',
+                    ));
+                  },
                 ),
                 TaskCheckForm(
                   pdfTitle: 'ارفاق صورة من كتاب او قرار التكليف',
