@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/router/app_router.gr.dart';
+import 'package:qacc_application/views/marriage_leave_info_page.dart';
 import 'package:qacc_application/widgets/note_box.dart';
 import '../widgets/date_form_field_widget.dart';
 import '../widgets/pdf_widget.dart';
@@ -66,7 +68,9 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                 SectionHeader(
                   title: 'طلب إجازة زواج',
                   image: 'assets/images/Info.png',
-                  onImageTap: () {},
+                  onImageTap: () {
+                    context.router.push(MarriageLeaveInfoRoute());
+                  },
                 ),
                 const Gap(20),
                 NoteBox(
