@@ -139,15 +139,6 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
                         },
                       ),
                       Gap(16.0), // مسافة بين الحقول
-                      // حقل عدد الأيام المسموح بها
-                      CustomTextField(
-                        controller: TextEditingController(text: "30"),
-                        readOnly: true,
-                        keyboardType: TextInputType.text,
-                        labelText: 'عدد الأيام المسموح بها',
-                        icon: Icons.pin_rounded,
-                      ),
-                      Gap(16.0), // مسافة بين الحقول
                       DateFormFieldWidget(
                         days: int.tryParse(daysController.text) ??
                             0, // تمرير حقل عدد الأيام
