@@ -62,7 +62,7 @@ class TaskCheckForm extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('هل تم تكليفك بواجب أو مهمة معينة للقيام بها',
+            Text('خلال فترة الإجازة، هل تم تكليفك بواجب أو مهمة معينة للقيام بها',
                 style: Theme.of(context).textTheme.bodyMedium),
             Row(
               children: [
@@ -91,7 +91,7 @@ class TaskCheckForm extends StatelessWidget {
                 children: [
                   CustomTextField(
                       controller: bookNumberController,
-                      labelText: 'رقم الكتاب',
+                      labelText: 'رقم كتاب التكليف',
                       icon: Icons.numbers,
                       validator: bookNumberValidator),
                   Gap(15.0),
