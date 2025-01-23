@@ -69,7 +69,7 @@ class _BottomNavigationBarEmployeesState
               icon: Icon(Icons.archive),
             ),
             BottomNavigationBarItem(
-              label: "محفوظات المدير",
+              label: "بريد المدير العام",
               icon: Icon(Icons.business_center),
             ),
             BottomNavigationBarItem(
