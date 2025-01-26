@@ -35,15 +35,27 @@ class ImageTextCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        mainAxisAlignment:
-            MainAxisAlignment.center, // توسيط المحتوى داخل الكرت
+        mainAxisAlignment: MainAxisAlignment.center, // توسيط المحتوى داخل الكرت
         mainAxisSize: MainAxisSize.min, // يجعل الارتفاع يعتمد على المحتوى
         children: [
-          Image.asset(
-            image, // مسار الصورة
-            width: 50, // عرض الصورة (اختياري)
-            height: 50, // ارتفاع الصورة (اختياري)
-            fit: BoxFit.cover, // كيفية ملاءمة الصورة (اختياري)
+          ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return LinearGradient(
+                colors: [
+                  AppColors.secondaryColor.shade600,
+                  AppColors.primaryColor.shade400,
+                ], // الألوان المتدرجة
+                begin: Alignment.topLeft, // بداية التدرج
+                end: Alignment.bottomRight, // نهاية التدرج
+              ).createShader(bounds);
+            },
+            blendMode: BlendMode.srcATop, // دمج اللون مع الصورة
+            child: Image.asset(
+              image, // مسار الصورة
+              width: 50, // عرض الصورة (اختياري)
+              height: 50, // ارتفاع الصورة (اختياري)
+              fit: BoxFit.cover, // كيفية ملاءمة الصورة (اختياري)
+            ),
           ),
           Gap(20),
           Text(
