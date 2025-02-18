@@ -213,9 +213,14 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Gap(15.0),
                         Expanded(
-                          child: ImageTextCard(
-                              image: 'assets/images/Fingerprint_Accepted.png',
-                              mainText: 'الحضور والإنصراف'),
+                          child: InkWell(
+                            onTap: () {
+                              AutoRouter.of(context).push(AttendanceTableRoute(employeeID: 103));
+                            },
+                            child: ImageTextCard(
+                                image: 'assets/images/Fingerprint_Accepted.png',
+                                mainText: 'الحضور والإنصراف'),
+                          ),
                         ),
                       ],
                     ),

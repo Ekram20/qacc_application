@@ -8,92 +8,103 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i18;
-import 'package:flutter/material.dart' as _i19;
-import 'package:qacc_application/bottom_navigation_bar_employees.dart' as _i2;
+import 'package:auto_route/auto_route.dart' as _i19;
+import 'package:flutter/material.dart' as _i20;
+import 'package:qacc_application/bottom_navigation_bar_employees.dart' as _i3;
 import 'package:qacc_application/views/annual_leave_request.dart' as _i1;
-import 'package:qacc_application/views/death_leave.dart' as _i3;
-import 'package:qacc_application/views/emergency_leave_request.dart' as _i4;
-import 'package:qacc_application/views/exams_leave.dart' as _i5;
-import 'package:qacc_application/views/form_selection_page.dart' as _i6;
-import 'package:qacc_application/views/full_screen_ad_page.dart' as _i7;
-import 'package:qacc_application/views/hajj_leave.dart' as _i8;
-import 'package:qacc_application/views/items_order_page.dart' as _i9;
-import 'package:qacc_application/views/leave_type_selection_page.dart' as _i11;
-import 'package:qacc_application/views/maintenance_request_type.dart' as _i12;
-import 'package:qacc_application/views/marriage_leave_info_page.dart' as _i13;
-import 'package:qacc_application/views/marriage_leave_page.dart' as _i14;
-import 'package:qacc_application/views/maternity_leave_request.dart' as _i15;
-import 'package:qacc_application/views/pdf_viewer_screen.dart' as _i16;
-import 'package:qacc_application/views/sick_leave_request.dart' as _i17;
-import 'package:qacc_application/widgets/leave_info_page.dart' as _i10;
+import 'package:qacc_application/views/attendance_table_page.dart' as _i2;
+import 'package:qacc_application/views/death_leave.dart' as _i4;
+import 'package:qacc_application/views/emergency_leave_request.dart' as _i5;
+import 'package:qacc_application/views/exams_leave.dart' as _i6;
+import 'package:qacc_application/views/form_selection_page.dart' as _i7;
+import 'package:qacc_application/views/full_screen_ad_page.dart' as _i8;
+import 'package:qacc_application/views/hajj_leave.dart' as _i9;
+import 'package:qacc_application/views/items_order_page.dart' as _i10;
+import 'package:qacc_application/views/leave_type_selection_page.dart' as _i12;
+import 'package:qacc_application/views/maintenance_request_type.dart' as _i13;
+import 'package:qacc_application/views/marriage_leave_info_page.dart' as _i14;
+import 'package:qacc_application/views/marriage_leave_page.dart' as _i15;
+import 'package:qacc_application/views/maternity_leave_request.dart' as _i16;
+import 'package:qacc_application/views/pdf_viewer_screen.dart' as _i17;
+import 'package:qacc_application/views/sick_leave_request.dart' as _i18;
+import 'package:qacc_application/widgets/leave_info_page.dart' as _i11;
 
-abstract class $AppRouter extends _i18.RootStackRouter {
+abstract class $AppRouter extends _i19.RootStackRouter {
   $AppRouter({super.navigatorKey});
 
   @override
-  final Map<String, _i18.PageFactory> pagesMap = {
+  final Map<String, _i19.PageFactory> pagesMap = {
     AnnualLeaveRequest.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: const _i1.AnnualLeaveRequest(),
       );
     },
-    BottomNavigationBarEmployees.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+    AttendanceTableRoute.name: (routeData) {
+      final args = routeData.argsAs<AttendanceTableRouteArgs>();
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i2.BottomNavigationBarEmployees(),
+        child: _i2.AttendanceTablePage(
+          key: args.key,
+          employeeID: args.employeeID,
+        ),
+      );
+    },
+    BottomNavigationBarEmployees.name: (routeData) {
+      return _i19.AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const _i3.BottomNavigationBarEmployees(),
       );
     },
     DeathLeave.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i3.DeathLeave(),
+        child: const _i4.DeathLeave(),
       );
     },
     EmergencyLeaveRequest.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i4.EmergencyLeaveRequest(),
+        child: const _i5.EmergencyLeaveRequest(),
       );
     },
     ExamsLeave.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i5.ExamsLeave(),
+        child: const _i6.ExamsLeave(),
       );
     },
     FormSelectionRoute.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i6.FormSelectionPage(),
+        child: const _i7.FormSelectionPage(),
       );
     },
     FullRouteAdRoute.name: (routeData) {
       final args = routeData.argsAs<FullRouteAdRouteArgs>();
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i7.FullScreenAdPage(imageUrl: args.imageUrl),
+        child: _i8.FullScreenAdPage(imageUrl: args.imageUrl),
       );
     },
     HajjLeave.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i8.HajjLeave(),
+        child: const _i9.HajjLeave(),
       );
     },
     ItemsOrderRoute.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i9.ItemsOrderPage(),
+        child: const _i10.ItemsOrderPage(),
       );
     },
     LeaveInfoRoute.name: (routeData) {
       final args = routeData.argsAs<LeaveInfoRouteArgs>(
           orElse: () => const LeaveInfoRouteArgs());
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i10.LeaveInfoPage(
+        child: _i11.LeaveInfoPage(
           key: args.key,
           leaveName: args.leaveName,
           leaveDuration: args.leaveDuration,
@@ -108,46 +119,46 @@ abstract class $AppRouter extends _i18.RootStackRouter {
       );
     },
     LeaveTypeSelectionRoute.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i11.LeaveTypeSelectionPage(),
+        child: const _i12.LeaveTypeSelectionPage(),
       );
     },
     MaintenanceRequestType.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i12.MaintenanceRequestType(),
+        child: const _i13.MaintenanceRequestType(),
       );
     },
     MarriageLeaveInfoRoute.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i13.MarriageLeaveInfoPage(),
+        child: const _i14.MarriageLeaveInfoPage(),
       );
     },
     MarriageLeaveRoute.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i14.MarriageLeavePage(),
+        child: const _i15.MarriageLeavePage(),
       );
     },
     MaternityLeaveRequest.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i15.MaternityLeaveRequest(),
+        child: const _i16.MaternityLeaveRequest(),
       );
     },
     PDFViewerRoute.name: (routeData) {
       final args = routeData.argsAs<PDFViewerRouteArgs>();
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i16.PDFViewerScreen(pdfPath: args.pdfPath),
+        child: _i17.PDFViewerScreen(pdfPath: args.pdfPath),
       );
     },
     SickLeaveRequest.name: (routeData) {
-      return _i18.AutoRoutePage<dynamic>(
+      return _i19.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i17.SickLeaveRequest(),
+        child: const _i18.SickLeaveRequest(),
       );
     },
   };
@@ -155,8 +166,8 @@ abstract class $AppRouter extends _i18.RootStackRouter {
 
 /// generated route for
 /// [_i1.AnnualLeaveRequest]
-class AnnualLeaveRequest extends _i18.PageRouteInfo<void> {
-  const AnnualLeaveRequest({List<_i18.PageRouteInfo>? children})
+class AnnualLeaveRequest extends _i19.PageRouteInfo<void> {
+  const AnnualLeaveRequest({List<_i19.PageRouteInfo>? children})
       : super(
           AnnualLeaveRequest.name,
           initialChildren: children,
@@ -164,13 +175,52 @@ class AnnualLeaveRequest extends _i18.PageRouteInfo<void> {
 
   static const String name = 'AnnualLeaveRequest';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i2.BottomNavigationBarEmployees]
-class BottomNavigationBarEmployees extends _i18.PageRouteInfo<void> {
-  const BottomNavigationBarEmployees({List<_i18.PageRouteInfo>? children})
+/// [_i2.AttendanceTablePage]
+class AttendanceTableRoute
+    extends _i19.PageRouteInfo<AttendanceTableRouteArgs> {
+  AttendanceTableRoute({
+    _i20.Key? key,
+    required int employeeID,
+    List<_i19.PageRouteInfo>? children,
+  }) : super(
+          AttendanceTableRoute.name,
+          args: AttendanceTableRouteArgs(
+            key: key,
+            employeeID: employeeID,
+          ),
+          initialChildren: children,
+        );
+
+  static const String name = 'AttendanceTableRoute';
+
+  static const _i19.PageInfo<AttendanceTableRouteArgs> page =
+      _i19.PageInfo<AttendanceTableRouteArgs>(name);
+}
+
+class AttendanceTableRouteArgs {
+  const AttendanceTableRouteArgs({
+    this.key,
+    required this.employeeID,
+  });
+
+  final _i20.Key? key;
+
+  final int employeeID;
+
+  @override
+  String toString() {
+    return 'AttendanceTableRouteArgs{key: $key, employeeID: $employeeID}';
+  }
+}
+
+/// generated route for
+/// [_i3.BottomNavigationBarEmployees]
+class BottomNavigationBarEmployees extends _i19.PageRouteInfo<void> {
+  const BottomNavigationBarEmployees({List<_i19.PageRouteInfo>? children})
       : super(
           BottomNavigationBarEmployees.name,
           initialChildren: children,
@@ -178,13 +228,13 @@ class BottomNavigationBarEmployees extends _i18.PageRouteInfo<void> {
 
   static const String name = 'BottomNavigationBarEmployees';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i3.DeathLeave]
-class DeathLeave extends _i18.PageRouteInfo<void> {
-  const DeathLeave({List<_i18.PageRouteInfo>? children})
+/// [_i4.DeathLeave]
+class DeathLeave extends _i19.PageRouteInfo<void> {
+  const DeathLeave({List<_i19.PageRouteInfo>? children})
       : super(
           DeathLeave.name,
           initialChildren: children,
@@ -192,13 +242,13 @@ class DeathLeave extends _i18.PageRouteInfo<void> {
 
   static const String name = 'DeathLeave';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i4.EmergencyLeaveRequest]
-class EmergencyLeaveRequest extends _i18.PageRouteInfo<void> {
-  const EmergencyLeaveRequest({List<_i18.PageRouteInfo>? children})
+/// [_i5.EmergencyLeaveRequest]
+class EmergencyLeaveRequest extends _i19.PageRouteInfo<void> {
+  const EmergencyLeaveRequest({List<_i19.PageRouteInfo>? children})
       : super(
           EmergencyLeaveRequest.name,
           initialChildren: children,
@@ -206,13 +256,13 @@ class EmergencyLeaveRequest extends _i18.PageRouteInfo<void> {
 
   static const String name = 'EmergencyLeaveRequest';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i5.ExamsLeave]
-class ExamsLeave extends _i18.PageRouteInfo<void> {
-  const ExamsLeave({List<_i18.PageRouteInfo>? children})
+/// [_i6.ExamsLeave]
+class ExamsLeave extends _i19.PageRouteInfo<void> {
+  const ExamsLeave({List<_i19.PageRouteInfo>? children})
       : super(
           ExamsLeave.name,
           initialChildren: children,
@@ -220,13 +270,13 @@ class ExamsLeave extends _i18.PageRouteInfo<void> {
 
   static const String name = 'ExamsLeave';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i6.FormSelectionPage]
-class FormSelectionRoute extends _i18.PageRouteInfo<void> {
-  const FormSelectionRoute({List<_i18.PageRouteInfo>? children})
+/// [_i7.FormSelectionPage]
+class FormSelectionRoute extends _i19.PageRouteInfo<void> {
+  const FormSelectionRoute({List<_i19.PageRouteInfo>? children})
       : super(
           FormSelectionRoute.name,
           initialChildren: children,
@@ -234,15 +284,15 @@ class FormSelectionRoute extends _i18.PageRouteInfo<void> {
 
   static const String name = 'FormSelectionRoute';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i7.FullScreenAdPage]
-class FullRouteAdRoute extends _i18.PageRouteInfo<FullRouteAdRouteArgs> {
+/// [_i8.FullScreenAdPage]
+class FullRouteAdRoute extends _i19.PageRouteInfo<FullRouteAdRouteArgs> {
   FullRouteAdRoute({
     required String imageUrl,
-    List<_i18.PageRouteInfo>? children,
+    List<_i19.PageRouteInfo>? children,
   }) : super(
           FullRouteAdRoute.name,
           args: FullRouteAdRouteArgs(imageUrl: imageUrl),
@@ -251,8 +301,8 @@ class FullRouteAdRoute extends _i18.PageRouteInfo<FullRouteAdRouteArgs> {
 
   static const String name = 'FullRouteAdRoute';
 
-  static const _i18.PageInfo<FullRouteAdRouteArgs> page =
-      _i18.PageInfo<FullRouteAdRouteArgs>(name);
+  static const _i19.PageInfo<FullRouteAdRouteArgs> page =
+      _i19.PageInfo<FullRouteAdRouteArgs>(name);
 }
 
 class FullRouteAdRouteArgs {
@@ -267,9 +317,9 @@ class FullRouteAdRouteArgs {
 }
 
 /// generated route for
-/// [_i8.HajjLeave]
-class HajjLeave extends _i18.PageRouteInfo<void> {
-  const HajjLeave({List<_i18.PageRouteInfo>? children})
+/// [_i9.HajjLeave]
+class HajjLeave extends _i19.PageRouteInfo<void> {
+  const HajjLeave({List<_i19.PageRouteInfo>? children})
       : super(
           HajjLeave.name,
           initialChildren: children,
@@ -277,13 +327,13 @@ class HajjLeave extends _i18.PageRouteInfo<void> {
 
   static const String name = 'HajjLeave';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i9.ItemsOrderPage]
-class ItemsOrderRoute extends _i18.PageRouteInfo<void> {
-  const ItemsOrderRoute({List<_i18.PageRouteInfo>? children})
+/// [_i10.ItemsOrderPage]
+class ItemsOrderRoute extends _i19.PageRouteInfo<void> {
+  const ItemsOrderRoute({List<_i19.PageRouteInfo>? children})
       : super(
           ItemsOrderRoute.name,
           initialChildren: children,
@@ -291,14 +341,14 @@ class ItemsOrderRoute extends _i18.PageRouteInfo<void> {
 
   static const String name = 'ItemsOrderRoute';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i10.LeaveInfoPage]
-class LeaveInfoRoute extends _i18.PageRouteInfo<LeaveInfoRouteArgs> {
+/// [_i11.LeaveInfoPage]
+class LeaveInfoRoute extends _i19.PageRouteInfo<LeaveInfoRouteArgs> {
   LeaveInfoRoute({
-    _i19.Key? key,
+    _i20.Key? key,
     String leaveName = '',
     String leaveDuration = '',
     String procedureStepsTitle = '',
@@ -308,7 +358,7 @@ class LeaveInfoRoute extends _i18.PageRouteInfo<LeaveInfoRouteArgs> {
     String stepThree = '',
     String stepFour = '',
     String stepFive = '',
-    List<_i18.PageRouteInfo>? children,
+    List<_i19.PageRouteInfo>? children,
   }) : super(
           LeaveInfoRoute.name,
           args: LeaveInfoRouteArgs(
@@ -328,8 +378,8 @@ class LeaveInfoRoute extends _i18.PageRouteInfo<LeaveInfoRouteArgs> {
 
   static const String name = 'LeaveInfoRoute';
 
-  static const _i18.PageInfo<LeaveInfoRouteArgs> page =
-      _i18.PageInfo<LeaveInfoRouteArgs>(name);
+  static const _i19.PageInfo<LeaveInfoRouteArgs> page =
+      _i19.PageInfo<LeaveInfoRouteArgs>(name);
 }
 
 class LeaveInfoRouteArgs {
@@ -346,7 +396,7 @@ class LeaveInfoRouteArgs {
     this.stepFive = '',
   });
 
-  final _i19.Key? key;
+  final _i20.Key? key;
 
   final String leaveName;
 
@@ -373,9 +423,9 @@ class LeaveInfoRouteArgs {
 }
 
 /// generated route for
-/// [_i11.LeaveTypeSelectionPage]
-class LeaveTypeSelectionRoute extends _i18.PageRouteInfo<void> {
-  const LeaveTypeSelectionRoute({List<_i18.PageRouteInfo>? children})
+/// [_i12.LeaveTypeSelectionPage]
+class LeaveTypeSelectionRoute extends _i19.PageRouteInfo<void> {
+  const LeaveTypeSelectionRoute({List<_i19.PageRouteInfo>? children})
       : super(
           LeaveTypeSelectionRoute.name,
           initialChildren: children,
@@ -383,13 +433,13 @@ class LeaveTypeSelectionRoute extends _i18.PageRouteInfo<void> {
 
   static const String name = 'LeaveTypeSelectionRoute';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i12.MaintenanceRequestType]
-class MaintenanceRequestType extends _i18.PageRouteInfo<void> {
-  const MaintenanceRequestType({List<_i18.PageRouteInfo>? children})
+/// [_i13.MaintenanceRequestType]
+class MaintenanceRequestType extends _i19.PageRouteInfo<void> {
+  const MaintenanceRequestType({List<_i19.PageRouteInfo>? children})
       : super(
           MaintenanceRequestType.name,
           initialChildren: children,
@@ -397,13 +447,13 @@ class MaintenanceRequestType extends _i18.PageRouteInfo<void> {
 
   static const String name = 'MaintenanceRequestType';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i13.MarriageLeaveInfoPage]
-class MarriageLeaveInfoRoute extends _i18.PageRouteInfo<void> {
-  const MarriageLeaveInfoRoute({List<_i18.PageRouteInfo>? children})
+/// [_i14.MarriageLeaveInfoPage]
+class MarriageLeaveInfoRoute extends _i19.PageRouteInfo<void> {
+  const MarriageLeaveInfoRoute({List<_i19.PageRouteInfo>? children})
       : super(
           MarriageLeaveInfoRoute.name,
           initialChildren: children,
@@ -411,13 +461,13 @@ class MarriageLeaveInfoRoute extends _i18.PageRouteInfo<void> {
 
   static const String name = 'MarriageLeaveInfoRoute';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i14.MarriageLeavePage]
-class MarriageLeaveRoute extends _i18.PageRouteInfo<void> {
-  const MarriageLeaveRoute({List<_i18.PageRouteInfo>? children})
+/// [_i15.MarriageLeavePage]
+class MarriageLeaveRoute extends _i19.PageRouteInfo<void> {
+  const MarriageLeaveRoute({List<_i19.PageRouteInfo>? children})
       : super(
           MarriageLeaveRoute.name,
           initialChildren: children,
@@ -425,13 +475,13 @@ class MarriageLeaveRoute extends _i18.PageRouteInfo<void> {
 
   static const String name = 'MarriageLeaveRoute';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i15.MaternityLeaveRequest]
-class MaternityLeaveRequest extends _i18.PageRouteInfo<void> {
-  const MaternityLeaveRequest({List<_i18.PageRouteInfo>? children})
+/// [_i16.MaternityLeaveRequest]
+class MaternityLeaveRequest extends _i19.PageRouteInfo<void> {
+  const MaternityLeaveRequest({List<_i19.PageRouteInfo>? children})
       : super(
           MaternityLeaveRequest.name,
           initialChildren: children,
@@ -439,15 +489,15 @@ class MaternityLeaveRequest extends _i18.PageRouteInfo<void> {
 
   static const String name = 'MaternityLeaveRequest';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
 
 /// generated route for
-/// [_i16.PDFViewerScreen]
-class PDFViewerRoute extends _i18.PageRouteInfo<PDFViewerRouteArgs> {
+/// [_i17.PDFViewerScreen]
+class PDFViewerRoute extends _i19.PageRouteInfo<PDFViewerRouteArgs> {
   PDFViewerRoute({
     required String pdfPath,
-    List<_i18.PageRouteInfo>? children,
+    List<_i19.PageRouteInfo>? children,
   }) : super(
           PDFViewerRoute.name,
           args: PDFViewerRouteArgs(pdfPath: pdfPath),
@@ -456,8 +506,8 @@ class PDFViewerRoute extends _i18.PageRouteInfo<PDFViewerRouteArgs> {
 
   static const String name = 'PDFViewerRoute';
 
-  static const _i18.PageInfo<PDFViewerRouteArgs> page =
-      _i18.PageInfo<PDFViewerRouteArgs>(name);
+  static const _i19.PageInfo<PDFViewerRouteArgs> page =
+      _i19.PageInfo<PDFViewerRouteArgs>(name);
 }
 
 class PDFViewerRouteArgs {
@@ -472,9 +522,9 @@ class PDFViewerRouteArgs {
 }
 
 /// generated route for
-/// [_i17.SickLeaveRequest]
-class SickLeaveRequest extends _i18.PageRouteInfo<void> {
-  const SickLeaveRequest({List<_i18.PageRouteInfo>? children})
+/// [_i18.SickLeaveRequest]
+class SickLeaveRequest extends _i19.PageRouteInfo<void> {
+  const SickLeaveRequest({List<_i19.PageRouteInfo>? children})
       : super(
           SickLeaveRequest.name,
           initialChildren: children,
@@ -482,5 +532,5 @@ class SickLeaveRequest extends _i18.PageRouteInfo<void> {
 
   static const String name = 'SickLeaveRequest';
 
-  static const _i18.PageInfo<void> page = _i18.PageInfo<void>(name);
+  static const _i19.PageInfo<void> page = _i19.PageInfo<void>(name);
 }
