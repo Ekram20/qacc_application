@@ -44,6 +44,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^24.2.3
   flutter_chat_ui: ^1.6.15
   url_launcher: ^6.3.1
+  google_sign_in: ^6.2.2
 
 dev_dependencies:
   flutter_test:
