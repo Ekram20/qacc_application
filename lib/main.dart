@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/router/app_router.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(const MyApp());
 }
 
