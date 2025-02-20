@@ -34,7 +34,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     fetchAdsImages(); // استدعاء الدالة لجلب الصور من API
-
+  // تحديث البيانات كل 10 ثوانٍ (أو حسب الحاجة)
+  Timer.periodic(Duration(seconds: 5), (timer) {
+    fetchAdsImages();
+  });
     // بدء التمرير التلقائي
     _startAutoScroll();
   }
