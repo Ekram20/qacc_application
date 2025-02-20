@@ -8,7 +8,9 @@ import 'package:qacc_application/views/home_page.dart';
 
 @RoutePage()
 class BottomNavigationBarEmployees extends StatefulWidget {
-  const BottomNavigationBarEmployees({super.key});
+    final String email; // استقبال البريد الإلكتروني من تسجيل الدخول
+
+  const BottomNavigationBarEmployees({super.key, required this.email});
 
   @override
   State<BottomNavigationBarEmployees> createState() =>
@@ -17,8 +19,9 @@ class BottomNavigationBarEmployees extends StatefulWidget {
 
 class _BottomNavigationBarEmployeesState
     extends State<BottomNavigationBarEmployees> {
-  List _pageOptions = [
-    HomePage(),
+      
+   late List _pageOptions = [
+    HomePage(email: widget.email),
     ArchivesScreen(),
     ArchivesAdminScreen(),
     EmployeeFiles(),

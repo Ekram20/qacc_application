@@ -12,7 +12,12 @@
           "package_name": "com.example.qacc_application"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1065371035020-j6ffl4nr7tann559t6ar0d4edgplg52v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAdd0Aly1QTxMUdmoEl9y20vdfJYaa9fO0"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1065371035020-j6ffl4nr7tann559t6ar0d4edgplg52v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.qaccApplication"
+              }
+            }
+          ]
         }
       }
     }

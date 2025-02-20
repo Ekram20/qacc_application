@@ -27,15 +27,25 @@ class FullScreenAdPage extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: GestureDetector(
-          onTap: () {
-          },
-          child: Image.asset(
-            imageUrl,
-            fit: BoxFit.contain,
-            width: double.infinity,
-            height: double.infinity,
-          ),
+        child: InteractiveViewer(
+          boundaryMargin: EdgeInsets.all(20), // هامش الحواف لتوسيع التحريك
+          minScale: 1.0, // الحد الأدنى للتكبير
+          maxScale: 5.0, // الحد الأقصى للتكبير
+          child:imageUrl.startsWith('http')
+              ? Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.broken_image, size: 100, color: Colors.grey),
+                )
+              : Image.asset(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
         ),
       ),
     );

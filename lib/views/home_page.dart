@@ -1,26 +1,30 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'dart:async'; // لاستخدام Timer
+import 'package:animate_do/animate_do.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:qacc_application/widgets/image_text_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HomePage extends StatefulWidget {
+  final String email; // استقبال البريد الإلكتروني من تسجيل الدخول
+
+  const HomePage({super.key, required this.email});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
-  final List<String> _adsImages = [
-    'assets/images/cover.jpg', // صورة محلية 1
-    'assets/images/cover.jpg', // صورة محلية 2
-    'assets/images/cover.jpg', // صورة محلية 3
-    'assets/images/cover.jpg', // صورة محلية 4
-  ];
+  List<String> _adsImages = [];
 
   // لإجراء التمرير التلقائي
   Timer? _timer;
@@ -29,8 +33,38 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    fetchAdsImages(); // استدعاء الدالة لجلب الصور من API
+
     // بدء التمرير التلقائي
     _startAutoScroll();
+  }
+
+  Future<void> fetchAdsImages() async {
+    final String apiUrl = 'http://www.hr.qacc.ly/php/ads_api.php';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = json.decode(response.body);
+        setState(() {
+          print('ggggggggggggggggggggggggg $jsonResponse');
+          _adsImages =
+              jsonResponse.cast<String>(); // تحويل البيانات إلى List<String>
+          _adsImages.insert(0, 'assets/images/cover.jpg');
+        /*if (_adsImages.isEmpty) {
+            _adsImages.add(
+                'assets/images/cover.jpg'); // إذا كانت فارغة، أضف الصورة الافتراضية
+          } */
+                   print('ggggggggggggggggggggggggg $_adsImages');
+
+        });
+      } else {
+        throw Exception('فشل في تحميل الإعلانات');
+      }
+    } catch (error) {
+      print('حدث خطأ: $error');
+    }
   }
 
   void _startAutoScroll() {
@@ -49,6 +83,16 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  // تسجيل الخروج
+  void signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    await GoogleSignIn()
+        .disconnect(); // فصل الحساب بالكامل وإجبار إعادة الاختيار
+
+    // الانتقال إلى الشاشة الرئيسية بعد نجاح المصادقة
+    context.router.replace(LoginRoute()); // العودة إلى شاشة تسجيل الدخول
   }
 
   @override
@@ -94,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                     print('تم اختيار الخيار 3');
                     break;
                   case 4:
-                    print('تم اختيار الخيار 4');
+                    signOut(context);
                     break;
                   default:
                     print('خيار غير معروف');
@@ -105,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                   value: 1,
                   child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text('الخيار 1')),
+                      child: Text(widget.email)),
                 ),
                 PopupMenuItem<int>(
                   value: 2,
@@ -123,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                   value: 4,
                   child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text('الخيار 4')),
+                      child: Text('تسجيل الخروج')),
                 ),
               ],
             )
@@ -139,16 +183,25 @@ class _HomePageState extends State<HomePage> {
                   controller: _pageController,
                   itemCount: _adsImages.length,
                   itemBuilder: (context, index) {
+                    String imageUrl = _adsImages[index];
+
                     return GestureDetector(
                       onTap: () {
-                        // عند الضغط على الصورة، افتح صفحة جديدة لعرض الصورة بالحجم الكبير
-                        context.router.push(
-                            FullRouteAdRoute(imageUrl: _adsImages[index]));
+                        context.router
+                            .push(FullRouteAdRoute(imageUrl: imageUrl));
                       },
-                      child: Image.asset(
-                        _adsImages[index],
-                        fit: BoxFit.cover,
-                      ),
+                      child: imageUrl.startsWith('http')
+                          ? Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(Icons.broken_image,
+                                      size: 100, color: Colors.grey),
+                            )
+                          : Image.asset(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                            ),
                     );
                   },
                 ),
@@ -170,77 +223,83 @@ class _HomePageState extends State<HomePage> {
               // هنا سيتم استخدام Widget آخر مثل ImageTextCard
               Padding(
                 padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              AutoRouter.of(context)
-                                  .push(LeaveTypeSelectionRoute());
-                            },
-                            child: ImageTextCard(
-                                image: 'assets/images/Google_Calendar.png',
-                                mainText: 'طلب إجازة'),
+                child: FadeInUp(
+                  duration: Duration(seconds: 1),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                AutoRouter.of(context)
+                                    .push(LeaveTypeSelectionRoute());
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Google_Calendar.png',
+                                  mainText: 'طلب إجازة'),
+                            ),
                           ),
-                        ),
-                        Gap(15.0),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              AutoRouter.of(context).push(FormSelectionRoute());
-                            },
-                            child: ImageTextCard(
-                                image: 'assets/images/Signing_A_Document.png',
-                                mainText: 'طلب نموذج'),
+                          Gap(15.0),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                AutoRouter.of(context)
+                                    .push(FormSelectionRoute());
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Signing_A_Document.png',
+                                  mainText: 'طلب نموذج'),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Gap(15.0),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              AutoRouter.of(context).push(ItemsOrderRoute());
-                            },
-                            child: ImageTextCard(
-                                image: 'assets/images/Create_Order.png',
-                                mainText: 'طلب أصناف'),
+                        ],
+                      ),
+                      Gap(15.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                AutoRouter.of(context).push(ItemsOrderRoute());
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Create_Order.png',
+                                  mainText: 'طلب أصناف'),
+                            ),
                           ),
-                        ),
-                        Gap(15.0),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              AutoRouter.of(context).push(AttendanceTableRoute(employeeID: 103));
-                            },
-                            child: ImageTextCard(
-                                image: 'assets/images/Fingerprint_Accepted.png',
-                                mainText: 'الحضور والإنصراف'),
+                          Gap(15.0),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                AutoRouter.of(context).push(
+                                    AttendanceTableRoute(employeeID: 103));
+                              },
+                              child: ImageTextCard(
+                                  image:
+                                      'assets/images/Fingerprint_Accepted.png',
+                                  mainText: 'الحضور والإنصراف'),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Gap(15.0),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              AutoRouter.of(context)
-                                  .push(MaintenanceRequestType());
-                            },
-                            child: ImageTextCard(
-                                image: 'assets/images/Service.png',
-                                mainText: 'طلب الصيانة'),
+                        ],
+                      ),
+                      Gap(15.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                AutoRouter.of(context)
+                                    .push(MaintenanceRequestType());
+                              },
+                              child: ImageTextCard(
+                                  image: 'assets/images/Service.png',
+                                  mainText: 'طلب الصيانة'),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               )
             ],
