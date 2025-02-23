@@ -11,7 +11,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: FormSelectionRoute.page),
         AutoRoute(page: FullRouteAdRoute.page),
         AutoRoute(page: MaintenanceRequestType.page),
-        AutoRoute(page: AnnualLeaveRequest.page),
+        AutoRoute(page: AnnualLeaveRequest.page ),
         AutoRoute(page: PDFViewerRoute.page),
         AutoRoute(page: MarriageLeaveRoute.page),
         AutoRoute(page: SickLeaveRequest.page),
@@ -23,7 +23,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: LeaveInfoRoute.page),
         AutoRoute(page: MarriageLeaveInfoRoute.page),
         AutoRoute(page: AttendanceTableRoute.page),
-        AutoRoute(page: BottomNavigationBarEmployees.page),
+        AutoRoute(page: BottomNavigationBarEmployees.page ),
 
       ];
 }
