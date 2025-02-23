@@ -34,10 +34,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     fetchAdsImages(); // استدعاء الدالة لجلب الصور من API
-  // تحديث البيانات كل 10 ثوانٍ (أو حسب الحاجة)
-  Timer.periodic(Duration(seconds: 5), (timer) {
-    fetchAdsImages();
-  });
+    // تحديث البيانات كل 10 ثوانٍ (أو حسب الحاجة)
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      fetchAdsImages();
+    });
     // بدء التمرير التلقائي
     _startAutoScroll();
   }
@@ -51,16 +51,13 @@ class _HomePageState extends State<HomePage> {
       if (response.statusCode == 200) {
         List<dynamic> jsonResponse = json.decode(response.body);
         setState(() {
-          print('ggggggggggggggggggggggggg $jsonResponse');
           _adsImages =
               jsonResponse.cast<String>(); // تحويل البيانات إلى List<String>
           _adsImages.insert(0, 'assets/images/cover.jpg');
-        /*if (_adsImages.isEmpty) {
+          /*if (_adsImages.isEmpty) {
             _adsImages.add(
                 'assets/images/cover.jpg'); // إذا كانت فارغة، أضف الصورة الافتراضية
           } */
-                   print('ggggggggggggggggggggggggg $_adsImages');
-
         });
       } else {
         throw Exception('فشل في تحميل الإعلانات');

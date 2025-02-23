@@ -1,8 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
@@ -44,7 +46,47 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // التحقق من البريد الإلكتروني في قاعدة البيانات
+  Future<bool> checkEmployeeEmail(String email) async {
+    final response = await http.post(
+      Uri.parse('http://www.hr.qacc.ly/php/check_employee_email.php'),
+      body: {'email': email},
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data['exists'];
+    } else {
+      print('خطأ في التحقق من البريد الإلكتروني');
+      return false;
+    }
+  }
+
   // تنفيذ تسجيل الدخول
+  void handleSignIn() async {
+    UserCredential? userCredential = await signInWithGoogle();
+    if (userCredential != null) {
+      String email = userCredential.user!.email!;
+      print("✅ تسجيل دخول ناجح: $email");
+
+      bool isEmployee = await checkEmployeeEmail(email);
+
+      if (isEmployee) {
+        context.router.replace(BottomNavigationBarEmployees(email: email));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("ليس لديك صلاحية الدخول. يرجى مراجعة شؤون الموظفين."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        await FirebaseAuth.instance.signOut();
+        await GoogleSignIn().signOut();
+      }
+    }
+  }
+
+/*   // تنفيذ تسجيل الدخول
   void handleSignIn() async {
     UserCredential? userCredential = await signInWithGoogle();
     if (userCredential != null) {
@@ -54,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // الانتقال إلى الشاشة الرئيسية بعد نجاح المصادقة
       context.router.replace(BottomNavigationBarEmployees(email: email));
     }
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
