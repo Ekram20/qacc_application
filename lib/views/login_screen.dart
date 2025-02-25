@@ -211,6 +211,45 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+                    Gap(200),
+                    Center(
+                      child: Column(
+                        children: [
+                          FadeInUp(
+                            duration: Duration(seconds: 2),
+                            child: Text(" : تم تطوير هذا النظام بواسطة ",
+                              style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12
+                            ), ),
+                          ),
+                          Gap(15),
+                          FadeInUp(
+                            duration: Duration(seconds: 2),
+                            child: Text("م.إكرام العرضاوي" ,
+                              style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              color: Colors.white,
+                              fontSize: 10
+                            ),),
+                          ),
+                          Gap(15),
+                          FadeInUp(
+                            duration: Duration(seconds: 2),
+                            child: Text("م.رحمة سعيد" ,
+                              style:
+                              Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontSize: 10
+                              ),),
+                          ),
+                          Gap(10)
+                        ],
+
+                      ),
+                    )
                   ],
                 ),
               ),
