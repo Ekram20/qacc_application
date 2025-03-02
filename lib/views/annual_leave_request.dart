@@ -10,9 +10,6 @@ import 'package:qacc_application/widgets/large_button.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:qacc_application/widgets/task_check_form.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 
 @RoutePage()
 class AnnualLeaveRequest extends StatefulWidget {
@@ -26,11 +23,11 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   final _formKey = GlobalKey<FormState>();
 
   // متغير لتخزين مسار الملف المختار
-  File? _file ;
-  bool isSubmitted = false ; // لتتبع حالة الإرسال
+  File? _file;
+  bool isSubmitted = false; // لتتبع حالة الإرسال
 
-  String? _selectedOption = "نعم" ; // القيمة المختارة
-  String? _selectedFile ; // المتغير لتمثيل الملف الذي تم اختياره
+  String? _selectedOption = "نعم"; // القيمة المختارة
+  String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
 
   // تعريف متغير للتحكم في تاريخ التكليف
   TextEditingController taskDateController = TextEditingController();
@@ -52,7 +49,6 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   // تعريف متغير للتحكم في تاريخ المباشرة
   TextEditingController resumptionController = TextEditingController();
 
-  String employeeId = "103";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,16 +79,16 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                     context.router.push(LeaveInfoRoute(
                       leaveName: 'الإجازة السنوية :',
                       leaveDuration:
-                          'تكون الاجازة السنوية ثلاثين يوماً في السنة وخمسة واربعين يوماً لمن بلغ سن الخمسين سنة او تجاوزت مدة خدمته عشرون عاماً.',
+                      'تكون الاجازة السنوية ثلاثين يوماً في السنة وخمسة واربعين يوماً لمن بلغ سن الخمسين سنة او تجاوزت مدة خدمته عشرون عاماً.',
                       procedureStepsTitle: 'خطوات اجراء الإجازة :',
                       stepDescription:
-                          'تعبئة نموذج طلب الاجازة رقم (A2) من قبل الموظف ويقدم لرئيس المباشر',
+                      'تعبئة نموذج طلب الاجازة رقم (A2) من قبل الموظف ويقدم لرئيس المباشر',
                       stepOne:
-                          'بعد موافقة الرئيس المباشرة على طلب الاجازة يعبنه النموذج رقم (B2) من جزئيين الجزء الاول من فبل الموظف والجزء الثاني من فبل الموظف المختص بالإجازات',
+                      'بعد موافقة الرئيس المباشرة على طلب الاجازة يعبنه النموذج رقم (B2) من جزئيين الجزء الاول من فبل الموظف والجزء الثاني من فبل الموظف المختص بالإجازات',
                       stepTwo:
-                          'لا يعتبر الموظف قد تحصل على الاجازة الابعد اعتماد النموذج رقم (B2) من الرئيس المباشر والرئيس الاعلى للموظف',
+                      'لا يعتبر الموظف قد تحصل على الاجازة الابعد اعتماد النموذج رقم (B2) من الرئيس المباشر والرئيس الاعلى للموظف',
                       stepThree:
-                          'على الموظف تقدم على الإجازة فبل اسبوع من التاريخ المراد الحصول فيه على الاجازة',
+                      'على الموظف تقدم على الإجازة فبل اسبوع من التاريخ المراد الحصول فيه على الاجازة',
                     ));
                   },
                 ),
@@ -111,7 +107,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   file: _file,
                   openFilePicker: _openFilePicker,
                   dateValidator: (value) =>
-                      value!.isEmpty ? 'يرجى إدخال تاريخ التكليف' : null,
+                  value!.isEmpty ? 'يرجى إدخال تاريخ التكليف' : null,
                   pdfValidator: (value) => _file == null && isSubmitted
                       ? 'يرجى إرفاق ملف PDF'
                       : null, // تحقق من الملف فقط عند الإرسال
@@ -123,18 +119,18 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   onDateSelected: (date) {
                     setState(() {
                       taskDateController.text =
-                          "${date.year}-${date.month}-${date.day}";
+                      "${date.year}-${date.month}-${date.day}";
                     });
                   },
                   bookNumberController: bookNumberController,
                   bookNumberValidator: (value) =>
-                      value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
+                  value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
                   taskController: taskController,
                   taskValidator: (value) =>
-                      value!.isEmpty ? 'يرجى إدخال المهمة' : null,
+                  value!.isEmpty ? 'يرجى إدخال المهمة' : null,
                   departmentController: departmentController,
                   departmentValidator: (value) =>
-                      value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
+                  value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -146,7 +142,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                         labelText: 'أدخل عدد الأيام',
                         icon: Icons.onetwothree_outlined,
                         validator: (value) =>
-                            value!.isEmpty ? 'يرجى إدخال عدد الأيام' : null,
+                        value!.isEmpty ? 'يرجى إدخال عدد الأيام' : null,
                         onChanged: (value) {
                           setState(() {});
                         },
@@ -165,13 +161,13 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                         days: int.tryParse(daysController.text) ??
                             0, // تمرير حقل عدد الأيام
                         requestDateController:
-                            requestDateController, // تمرير حقل تاريخ الطلب
+                        requestDateController, // تمرير حقل تاريخ الطلب
                         startDateController:
-                            leaveStartController, // تمرير حقل تاريخ بدء الإجازة
+                        leaveStartController, // تمرير حقل تاريخ بدء الإجازة
                         endDateController:
-                            leaveEndController, // تمرير حقل تاريخ انتهاء الإجازة
+                        leaveEndController, // تمرير حقل تاريخ انتهاء الإجازة
                         resumeDateController:
-                            resumptionController, // تمرير حقل تاريخ العودة
+                        resumptionController, // تمرير حقل تاريخ العودة
                       ),
                       Gap(16.0),
                       LargeButton(
@@ -191,105 +187,63 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
     );
   }
 
-
-
-// تعديل دالة _submitForm داخل _AnnualLeaveRequestState:
-  void _submitForm() async {
+  void _submitForm() {
     if (_selectedOption == "نعم") {
       setState(() {
-        isSubmitted = true;
+        isSubmitted = true; // تعيين حالة الإرسال إلى true
       });
+      // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
       if (_formKey.currentState!.validate()) {
-        // التأكد من اختيار الملف عند اختيار "نعم"
+        // تحقق إضافي لضمان أن الملف موجود عند اختيار "نعم"
         if (_selectedOption == "نعم" && _file == null) {
-          return;
+          return; // إيقاف الإرسال إذا لم يتم اختيار ملف
         }
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          '_selectedOption': _selectedOption,
+          'taskDateController': taskDateController.text,
+          '_file': _file,
+          'bookNumberController': bookNumberController.text,
+          'taskController': taskController.text,
+          'departmentController': departmentController.text,
+          'daysController': daysController.text,
+          'requestDateController': requestDateController.text,
+          'leaveStartController': leaveStartController.text,
+          'leaveEndController': leaveEndController.text,
+          'resumptionController': resumptionController.text,
+        };
 
-        // إنشاء طلب Multipart
-        Uri uri = Uri.parse("https://yourdomain.com/submit_annual_leave.php");
-        var request = http.MultipartRequest('POST', uri);
-
-        // إضافة الحقول النصية
-        request.fields['employee_id']    = employeeId;
-        request.fields['selected_option']  = _selectedOption!;
-        request.fields['task_date']        = taskDateController.text;
-        request.fields['book_number']      = bookNumberController.text;
-        request.fields['task']             = taskController.text;
-        request.fields['department']       = departmentController.text;
-        request.fields['days']             = daysController.text;
-        request.fields['request_date']     = requestDateController.text;
-        request.fields['leave_start']      = leaveStartController.text;
-        request.fields['leave_end']        = leaveEndController.text;
-        request.fields['resumption']       = resumptionController.text;
-
-        // إضافة الملف إذا كان موجود
-        if (_file != null) {
-          request.files.add(await http.MultipartFile.fromPath('pdf_file', _file!.path));
-        }
-
-        // إرسال الطلب
-        var response = await request.send();
-        var responseData = await response.stream.bytesToString();
-        var jsonResponse = json.decode(responseData);
-
-        if (jsonResponse["success"]) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('تم حفظ البيانات بنجاح'),
-              duration: Duration(seconds: 2),
-              backgroundColor: Colors.green,
-            ),
-          );
-          _resetFields();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('خطأ: ${jsonResponse["message"]}'),
-              duration: Duration(seconds: 2),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        // عرض رسالة نجاح بعد إرسال البيانات
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('البيانات: $requestData'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _resetFields();
       }
     } else if (_selectedOption == "لا") {
+      // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
       if (_formKey.currentState!.validate()) {
-        Uri uri = Uri.parse("https://hr.qacc.ly/php/submit_annual_leave.php");
-        var request = http.MultipartRequest('POST', uri);
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          'daysController': daysController.text,
+          'requestDateController': requestDateController.text,
+          'leaveStartController': leaveStartController.text,
+          'leaveEndController': leaveEndController.text,
+          'resumptionController': resumptionController.text,
+        };
 
-        request.fields['employee_id']    = employeeId;
-        request.fields['selected_option']  = _selectedOption!;
-        request.fields['task_date']        = taskDateController.text;
-        request.fields['book_number']      = bookNumberController.text;
-        request.fields['task']             = taskController.text;
-        request.fields['department']       = departmentController.text;
-        request.fields['days']             = daysController.text;
-        request.fields['request_date']     = requestDateController.text;
-        request.fields['leave_start']      = leaveStartController.text;
-        request.fields['leave_end']        = leaveEndController.text;
-        request.fields['resumption']       = resumptionController.text;
-
-        var response = await request.send();
-        var responseData = await response.stream.bytesToString();
-        var jsonResponse = json.decode(responseData);
-
-        if (jsonResponse["success"]) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('تم حفظ البيانات بنجاح'),
-              duration: Duration(seconds: 2),
-              backgroundColor: Colors.green,
-            ),
-          );
-          _resetFields();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('خطأ: ${jsonResponse["message"]}'),
-              duration: Duration(seconds: 2),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        // عرض رسالة نجاح بعد إرسال البيانات
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('البيانات: $requestData'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _resetFields();
       }
     }
   }
