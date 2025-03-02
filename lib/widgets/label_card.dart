@@ -45,11 +45,25 @@ class LabelCard extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             Spacer(),
-            Icon(
+            ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return LinearGradient(
+                  colors: [
+                    AppColors.secondaryColor.shade600,
+                    AppColors.primaryColor.shade400,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds);
+              },
+              blendMode: BlendMode.srcATop,
+              child: Icon(
               Icons.arrow_circle_left_rounded,
               color: AppColors.secondaryColor.shade600,
               size: 45.0,
             ),
+            ),
+
           ],
         ),
       ),
