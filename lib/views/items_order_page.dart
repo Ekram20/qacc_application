@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 
@@ -16,8 +18,8 @@ class ItemsOrderPage extends StatefulWidget {
 }
 
 class _ItemsOrderPageState extends State<ItemsOrderPage> {
-  final _employeeName = TextEditingController();
-  final _entityName = TextEditingController();
+  final TextEditingController _employeeName = TextEditingController();
+  final TextEditingController _entityName = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   final List<Map<String, dynamic>> _items = [
@@ -35,13 +37,23 @@ class _ItemsOrderPageState extends State<ItemsOrderPage> {
       if (_items.length > 1) {
         _items.removeWhere((item) => item['id'] == id);
       } else {
-      _showSnackBar('لا يمكن حذف جميع الأصناف. يجب أن يحتوي النموذج على صنف واحد على الأقل.');
-
+        _showSnackBar(
+            'لا يمكن حذف جميع الأصناف. يجب أن يحتوي النموذج على صنف واحد على الأقل.');
       }
     });
   }
 
-    void _showSnackBar(String message) {
+  @override
+  void initState() {
+    super.initState();
+    final employeeData =
+        Provider.of<EmployeeProvider>(context, listen: false).employeeData;
+    
+    _employeeName.text = employeeData?["name"] ?? "";
+    _entityName.text = employeeData?["department"] ?? "لم يتم التحديد";
+  }
+  
+  void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -90,6 +102,8 @@ class _ItemsOrderPageState extends State<ItemsOrderPage> {
 
   @override
   Widget build(BuildContext context) {
+    final employeeData = Provider.of<EmployeeProvider>(context).employeeData;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -121,6 +135,7 @@ class _ItemsOrderPageState extends State<ItemsOrderPage> {
                         controller: _employeeName,
                         labelText: 'اسم الموظف',
                         icon: Icons.account_circle,
+                        readOnly: true,
                         validator: (value) =>
                             value!.isEmpty ? 'يرجى إدخال اسم الموظف' : null,
                       ),
@@ -129,6 +144,7 @@ class _ItemsOrderPageState extends State<ItemsOrderPage> {
                         controller: _entityName,
                         labelText: 'الكيان',
                         icon: Icons.apartment,
+                        readOnly: true,
                         validator: (value) => value!.isEmpty
                             ? 'يرجى إدخال الكيان التابع له'
                             : null,
@@ -179,9 +195,9 @@ class _ItemsOrderPageState extends State<ItemsOrderPage> {
                         );
                       }).toList(),
                       LargeButton(
-                        buttonText:"إضافة صنف أخر" ,
+                        buttonText: "إضافة صنف أخر",
                         color: AppColors.secondaryColor.shade600,
-                        onPressed:_addItem,
+                        onPressed: _addItem,
                       )
                       // Container(
                       //   color: AppColors.secondaryColor.shade600,

@@ -52,13 +52,9 @@ abstract class $AppRouter extends _i20.RootStackRouter {
       );
     },
     BottomNavigationBarEmployees.name: (routeData) {
-      final args = routeData.argsAs<BottomNavigationBarEmployeesArgs>();
       return _i20.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i3.BottomNavigationBarEmployees(
-          key: args.key,
-          email: args.email,
-        ),
+        child: const _i3.BottomNavigationBarEmployees(),
       );
     },
     DeathLeave.name: (routeData) {
@@ -230,41 +226,16 @@ class AttendanceTableRouteArgs {
 
 /// generated route for
 /// [_i3.BottomNavigationBarEmployees]
-class BottomNavigationBarEmployees
-    extends _i20.PageRouteInfo<BottomNavigationBarEmployeesArgs> {
-  BottomNavigationBarEmployees({
-    _i21.Key? key,
-    required String email,
-    List<_i20.PageRouteInfo>? children,
-  }) : super(
+class BottomNavigationBarEmployees extends _i20.PageRouteInfo<void> {
+  const BottomNavigationBarEmployees({List<_i20.PageRouteInfo>? children})
+      : super(
           BottomNavigationBarEmployees.name,
-          args: BottomNavigationBarEmployeesArgs(
-            key: key,
-            email: email,
-          ),
           initialChildren: children,
         );
 
   static const String name = 'BottomNavigationBarEmployees';
 
-  static const _i20.PageInfo<BottomNavigationBarEmployeesArgs> page =
-      _i20.PageInfo<BottomNavigationBarEmployeesArgs>(name);
-}
-
-class BottomNavigationBarEmployeesArgs {
-  const BottomNavigationBarEmployeesArgs({
-    this.key,
-    required this.email,
-  });
-
-  final _i21.Key? key;
-
-  final String email;
-
-  @override
-  String toString() {
-    return 'BottomNavigationBarEmployeesArgs{key: $key, email: $email}';
-  }
+  static const _i20.PageInfo<void> page = _i20.PageInfo<void>(name);
 }
 
 /// generated route for
