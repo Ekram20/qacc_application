@@ -8,15 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:qacc_application/widgets/image_text_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HomePage extends StatefulWidget {
-  final String email; // استقبال البريد الإلكتروني من تسجيل الدخول
-
-  const HomePage({super.key, required this.email});
+  const HomePage({super.key});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -97,6 +97,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final employeeData = Provider.of<EmployeeProvider>(context).employeeData;
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -149,13 +151,13 @@ class _HomePageState extends State<HomePage> {
                   value: 1,
                   child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text(widget.email)),
+                      child: Text(employeeData!['id'].toString())),
                 ),
                 PopupMenuItem<int>(
                   value: 2,
                   child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text('الخيار 2')),
+                      child: Text(employeeData['name'])),
                 ),
                 PopupMenuItem<int>(
                   value: 3,

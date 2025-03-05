@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'dart:async';
@@ -7,6 +8,7 @@ import 'package:qacc_application/models/app_colors.dart';
 
 import '../widgets/section_header.dart';
 
+@RoutePage()
 class AttendanceTablePage extends StatefulWidget {
   final int employeeID;
   const AttendanceTablePage({Key? key, required this.employeeID}) : super(key: key);

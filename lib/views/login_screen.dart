@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
 
 @RoutePage()
@@ -46,45 +48,53 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // التحقق من البريد الإلكتروني في قاعدة البيانات
-  Future<bool> checkEmployeeEmail(String email) async {
-    final response = await http.post(
-      Uri.parse('http://www.hr.qacc.ly/php/check_employee_email.php'),
-      body: {'email': email},
-    );
+// التحقق من البريد الإلكتروني في قاعدة البيانات واسترجاع بيانات الموظف
+Future<Map<String, dynamic>?> checkEmployeeEmail(String email) async {
+  final response = await http.post(
+    Uri.parse('http://www.hr.qacc.ly/php/check_employee_email.php'),
+    body: {'email': email},
+  );
 
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      return data['exists'];
-    } else {
-      print('خطأ في التحقق من البريد الإلكتروني');
-      return false;
+  if (response.statusCode == 200) {
+    var data = jsonDecode(response.body);
+
+    if (data['exists'] == true) {
+      return data['employee']; // إرجاع بيانات الموظف فقط
     }
   }
+
+  return null; // إرجاع null إذا لم يكن الموظف موجودًا
+}
+
 
   // تنفيذ تسجيل الدخول
-  void handleSignIn() async {
-    UserCredential? userCredential = await signInWithGoogle();
-    if (userCredential != null) {
-      String email = userCredential.user!.email!;
-      print("✅ تسجيل دخول ناجح: $email");
+void handleSignIn() async {
+  UserCredential? userCredential = await signInWithGoogle();
+  if (userCredential != null) {
+    String email = userCredential.user!.email!;
+    print("✅ تسجيل دخول ناجح: $email");
 
-      bool isEmployee = await checkEmployeeEmail(email);
+    Map<String, dynamic>? employeeData = await checkEmployeeEmail(email);
 
-      if (isEmployee) {
-        context.router.replace(BottomNavigationBarEmployees(email: email));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("ليس لديك صلاحية الدخول. يرجى مراجعة شؤون الموظفين."),
-            backgroundColor: Colors.red,
-          ),
-        );
-        await FirebaseAuth.instance.signOut();
-        await GoogleSignIn().signOut();
-      }
+    if (employeeData != null) {
+      // حفظ بيانات الموظف في EmployeeProvider
+      Provider.of<EmployeeProvider>(context, listen: false)
+          .setEmployeeData(employeeData);
+
+      // الانتقال إلى الصفحة الرئيسية
+      context.router.replace(BottomNavigationBarEmployees());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("ليس لديك صلاحية الدخول، يرجى مراجعة شؤون الموظفين",textAlign: TextAlign.right,),
+          backgroundColor: Colors.red,
+        ),
+      );
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
     }
   }
+}
 
 /*   // تنفيذ تسجيل الدخول
   void handleSignIn() async {
@@ -211,45 +221,32 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    Gap(200),
-                    Center(
-                      child: Column(
-                        children: [
-                          FadeInUp(
-                            duration: Duration(seconds: 2),
-                            child: Text(" : تم تطوير هذا النظام بواسطة ",
-                              style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12
-                            ), ),
+                  ],
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "© 2025 جميع الحقوق محفوظة",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white54,
+                            fontSize: 12,
                           ),
-                          Gap(15),
-                          FadeInUp(
-                            duration: Duration(seconds: 2),
-                            child: Text("م.إكرام العرضاوي" ,
-                              style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: Colors.white,
-                              fontSize: 10
-                            ),),
+                    ),
+                    Text(
+                      "® م. إكرام العرضاوي ®  |  م. رحمة سعيد",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Gap(15),
-                          FadeInUp(
-                            duration: Duration(seconds: 2),
-                            child: Text("م.رحمة سعيد" ,
-                              style:
-                              Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Colors.white,
-                                fontSize: 10
-                              ),),
-                          ),
-                          Gap(10)
-                        ],
-
-                      ),
-                    )
+                    ),
                   ],
                 ),
               ),
