@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:qacc_application/models/message_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class MessageBubble extends StatelessWidget {
-  final Message message;
+  final Map<String, dynamic> message;
 
   const MessageBubble({required this.message, Key? key}) : super(key: key);
 
@@ -30,26 +28,31 @@ class MessageBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'من: ${message.createdBy}',
+                'من: ${message['created_by']}',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               SizedBox(height: 8),
-              if (message.content != null)
-                Text(message.content!, style: TextStyle(fontSize: 16)),
-              if (message.fileUrl != null)
+              if (message['message_text'] != null)
+                Text(message['message_text'], style: TextStyle(fontSize: 16)),
+              if (message['file_url'] != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: GestureDetector(
-                    onTap: () async {
-                      final url = message.fileUrl!;
-                      if (await canLaunch(url)) {
-                        await launch(url);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('تعذر فتح الملف'),
+                    onTap: () {
+                      final url = message['file_url'];
+                      final fileName = message['file_name'] ?? '';
+
+                      if (_isImage(fileName)) {
+                        // عرض الصورة في شاشة جديدة بحجم كبير
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ImagePreviewScreen(imageUrl: url),
                           ),
                         );
+                      } else {
+                        // فتح الملف في المتصفح أو تطبيق خارجي
+                        _launchFile(url);
                       }
                     },
                     child: Row(
@@ -58,10 +61,9 @@ class MessageBubble extends StatelessWidget {
                         SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            message.fileName!,
+                            message['file_name'] ?? 'ملف مرفق',
                             overflow: TextOverflow.ellipsis,
-                            style:
-                                TextStyle(color: Colors.blue, fontSize: 14),
+                            style: TextStyle(color: Colors.blue, fontSize: 14),
                           ),
                         ),
                       ],
@@ -71,7 +73,7 @@ class MessageBubble extends StatelessWidget {
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Text(
-                  message.createdAt,
+                  message['created_at'],
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ),
@@ -81,5 +83,37 @@ class MessageBubble extends StatelessWidget {
       ),
     );
   }
+
+  bool _isImage(String fileName) {
+    final imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+    return imageExtensions.any((ext) => fileName.toLowerCase().endsWith(ext));
+  }
+
+  Future<void> _launchFile(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
+  }
 }
 
+class ImagePreviewScreen extends StatelessWidget {
+  final String imageUrl;
+
+  const ImagePreviewScreen({required this.imageUrl, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: InteractiveViewer(
+          child: Image.network(imageUrl),
+        ),
+      ),
+    );
+  }
+}

@@ -32,7 +32,7 @@ final List<Message> messages = [
             itemCount: messages.length,
             itemBuilder: (context, index) {
               final message = messages[index];
-              return MessageBubble(message: message);
+              return /* MessageBubble(message: message) */;
             },
           ),
         ),
