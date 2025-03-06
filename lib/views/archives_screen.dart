@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:qacc_application/models/app_colors.dart';
-import 'package:qacc_application/models/message_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/widgets/message_bubble.dart';
@@ -16,64 +16,75 @@ class ArchivesScreen extends StatefulWidget {
 }
 
 class _ArchivesScreenState extends State<ArchivesScreen> {
-  late int employeeId; // معرف الموظف الذي قام بتسجيل الدخول
-
-  late Future<List<dynamic>> _messagesFuture;
+  late int employeeId;
+  List<dynamic> _messages = [];
+  bool _isLoading = true;
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
-    final employeeData =
-        Provider.of<EmployeeProvider>(context, listen: false).employeeData;
-    employeeId = employeeData!["id"];
-    _messagesFuture = fetchMessages();
-    print('............................///////${employeeId}');
+    employeeId = Provider.of<EmployeeProvider>(context, listen: false).employeeData!["id"];
+    fetchMessages(); // تحميل البيانات أول مرة
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      fetchMessages();
+    });
   }
 
-  Future<List<dynamic>> fetchMessages() async {
-    final url = Uri.parse('http://www.hr.qacc.ly/php/messages_app_api.php?employee_id=${employeeId}'); // استبدل برابط API الحقيقي
-    final response = await http.get(url);
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body); // تحويل البيانات إلى قائمة ديناميكية
-    } else {
-      throw Exception('فشل في تحميل الرسائل');
+  Future<void> fetchMessages() async {
+    try {
+      final url = Uri.parse('http://www.hr.qacc.ly/php/messages_app_api.php?employee_id=$employeeId');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> newMessages = json.decode(response.body);
+
+        if (!listEquals(newMessages, _messages)) {
+          setState(() {
+            _messages = newMessages;
+          });
+        }
+      } else {
+        throw Exception('فشل في تحميل الرسائل');
+      }
+    } catch (error) {
+      print('خطأ أثناء جلب البيانات: $error');
+    } finally {
+      if (_isLoading) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title:
-              Text('المحفوظات', style: Theme.of(context).textTheme.bodySmall),
-          centerTitle: true,
-        ),
-        body: Directionality(
-          textDirection: TextDirection.rtl,
-          child: FutureBuilder<List<dynamic>>(
-            future: _messagesFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('حدث خطأ أثناء تحميل الرسائل'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('لا يوجد لديك رسائل بعد'));
-              } else {
-                final messages = snapshot.data!;
-                return ListView.builder(
-                  padding: EdgeInsets.only(top: 10.0),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final message = messages[index];
-                    return MessageBubble(message: message);
-                  },
-                );
-              }
-            },
-          ),
-        ));
+      appBar: AppBar(
+        title: Text('المحفوظات', style: Theme.of(context).textTheme.bodySmall),
+        centerTitle: true,
+      ),
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _messages.isEmpty
+                ? Center(child: Text('لا يوجد لديك رسائل بعد'))
+                : ListView.builder(
+                    padding: EdgeInsets.only(top: 10.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      return MessageBubble(message: _messages[index]);
+                    },
+                  ),
+      ),
+    );
   }
 }
