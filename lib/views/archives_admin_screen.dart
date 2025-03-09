@@ -1,41 +1,89 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:qacc_application/models/app_colors.dart';
-import 'package:qacc_application/models/message_model.dart';
+import 'package:provider/provider.dart';
+import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/widgets/message_bubble.dart';
 
-class ArchivesAdminScreen extends StatelessWidget {
-   ArchivesAdminScreen({super.key});
-final List<Message> messages = [
-  Message(
-    id: 1, // معرف الرسالة
-    employeeId: 1, // معرف الموظف
-    content: 'يرجى مراجعة الملف المرفق', // نص الرسالة
-    fileName: 'إسم الملف', // اسم الملف
-    fileUrl: 'fileUrl', // رابط الملف
-    createdBy: 'المدير العام', // مرسل الرسالة
-    createdAt: '10:01 ص', // تحويل تاريخ الإرسال إلى DateTime
-  )
-];
+class ArchivesAdminScreen extends StatefulWidget {
+  const ArchivesAdminScreen({super.key});
+
+  @override
+  State<ArchivesAdminScreen> createState() => _ArchivesAdminScreenState();
+}
+
+class _ArchivesAdminScreenState extends State<ArchivesAdminScreen> {
+  late int employeeId;
+  List<dynamic> _messages = [];
+  bool _isLoading = true;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    employeeId = Provider.of<EmployeeProvider>(context, listen: false).employeeData!["id"];
+    fetchMessages(); // تحميل البيانات أول مرة
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      fetchMessages();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  Future<void> fetchMessages() async {
+    try {
+      final url = Uri.parse('http://www.hr.qacc.ly/php/messages_admin_app_api.php?employee_id=$employeeId');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> newMessages = json.decode(response.body);
+
+        if (!listEquals(newMessages, _messages)) {
+          setState(() {
+            _messages = newMessages;
+          });
+        }
+      } else {
+        throw Exception('فشل في تحميل الرسائل');
+      }
+    } catch (error) {
+      print('خطأ أثناء جلب البيانات: $error');
+    } finally {
+      if (_isLoading) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('بريد المدير العام', style: Theme.of(context).textTheme.bodySmall),
+        title: Text('المحفوظات', style: Theme.of(context).textTheme.bodySmall),
         centerTitle: true,
       ),
       body: Directionality(
         textDirection: TextDirection.rtl,
-        child: Container(
-          color: AppColors.white, // خلفية بيضاء
-          child: ListView.builder(
-            padding: EdgeInsets.only(top: 10.0),
-            itemCount: messages.length,
-            itemBuilder: (context, index) {
-              final message = messages[index];
-              return /* MessageBubble(message: message) */;
-            },
-          ),
-        ),
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _messages.isEmpty
+                ? Center(child: Text('لا يوجد لديك رسائل بعد'))
+                : ListView.builder(
+                    padding: EdgeInsets.only(top: 10.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      return MessageBubble(message: _messages[index]);
+                    },
+                  ),
       ),
     );
   }

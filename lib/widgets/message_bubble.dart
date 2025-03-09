@@ -8,6 +8,10 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String messageText = message['message_text']?.trim() ?? '';
+    bool hasText = messageText.isNotEmpty;
+    bool hasFile = message['file_url'] != null;
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
@@ -27,14 +31,25 @@ class MessageBubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'من: ${message['created_by']}',
+              const Text(
+                'من: المحفوظات',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
-              SizedBox(height: 8),
-              if (message['message_text'] != null)
-                Text(message['message_text'], style: TextStyle(fontSize: 16)),
-              if (message['file_url'] != null)
+              const SizedBox(height: 8),
+
+              // إذا كان هناك نص نعرضه، وإذا لم يكن هناك نص ولكن يوجد ملف نعرض رسالة احترافية
+              if (hasText)
+                Text(messageText, style: const TextStyle(fontSize: 16))
+              else if (hasFile)
+                const Text(
+                  'تمت مشاركة ملف',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey),
+                ),
+
+              if (hasFile)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: GestureDetector(
@@ -43,33 +58,34 @@ class MessageBubble extends StatelessWidget {
                       final fileName = message['file_name'] ?? '';
 
                       if (_isImage(fileName)) {
-                        // عرض الصورة في شاشة جديدة بحجم كبير
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ImagePreviewScreen(imageUrl: url),
+                            builder: (context) =>
+                                ImagePreviewScreen(imageUrl: url),
                           ),
                         );
                       } else {
-                        // فتح الملف في المتصفح أو تطبيق خارجي
                         _launchFile(url);
                       }
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.attach_file, color: Colors.blue),
-                        SizedBox(width: 8),
+                        const Icon(Icons.attach_file, color: Colors.blue),
+                        const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             message['file_name'] ?? 'ملف مرفق',
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: Colors.blue, fontSize: 14),
+                            style: const TextStyle(
+                                color: Colors.blue, fontSize: 14),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
+
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Text(
@@ -99,7 +115,8 @@ class MessageBubble extends StatelessWidget {
 class ImagePreviewScreen extends StatelessWidget {
   final String imageUrl;
 
-  const ImagePreviewScreen({required this.imageUrl, Key? key}) : super(key: key);
+  const ImagePreviewScreen({required this.imageUrl, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
