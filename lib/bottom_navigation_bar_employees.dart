@@ -19,7 +19,7 @@ class BottomNavigationBarEmployees extends StatefulWidget {
 class _BottomNavigationBarEmployeesState
     extends State<BottomNavigationBarEmployees> {
       
-   late List _pageOptions = [
+  late List _pageOptions = [
     HomePage(),
     ArchivesScreen(),
     ArchivesAdminScreen(),

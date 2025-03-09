@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
@@ -14,8 +15,11 @@ import 'package:qacc_application/widgets/task_check_form.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
+import '../providers/employee_provider.dart';
+
 @RoutePage()
 class AnnualLeaveRequest extends StatefulWidget {
+
   const AnnualLeaveRequest({super.key});
 
   @override
@@ -51,45 +55,25 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   TextEditingController leaveEndController = TextEditingController();
   // تعريف متغير للتحكم في تاريخ المباشرة
   TextEditingController resumptionController = TextEditingController();
-
+  //عدد الايام المسموح بها
   TextEditingController _leaveController = TextEditingController();
 
+  late int employeeId ;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchEmployeeLeave();
+
+    final employeeData =
+        Provider.of<EmployeeProvider>(context, listen: false).employeeData;
+
+    _leaveController.text = employeeData?["annual_leave"].toString() ?? "";
+    employeeId = employeeData?["id"] ?? "";
   }
 
 
-  // دالة لجلب عدد الأيام المسموح بها من API
-  Future<void> _fetchEmployeeLeave() async {
-    final response = await http.get(Uri.parse(
-        'https://hr.qacc.ly/php/get_employee_leave.php?employee_id=11'));
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['status'] == 'success') {
-        setState(() {
-          _leaveController.text = data['annual_leave'].toString();
-          _isLoading = false;
-        });
-      } else {
-        // التعامل مع الأخطاء إذا لم يتم العثور على الموظف
-        setState(() {
-          _leaveController.text = 'خطأ في جلب البيانات';
-          _isLoading = false;
-        });
-      }
-    } else {
-      // في حالة حدوث خطأ في الاتصال
-      setState(() {
-        _leaveController.text = 'فشل في الاتصال';
-        _isLoading = false;
-      });
-    }
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -252,7 +236,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
 
         // تجهيز البيانات المشتركة بين الحالتين
         Map<String, String> formData = {
-          "employeeID": "11",
+          "employeeID": employeeId.toString(),
           "leave_type": "اجازة سنوية",
           "isTasked": _selectedOption.toString(),
           "days": daysController.text,

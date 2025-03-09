@@ -9,6 +9,7 @@ import 'package:qacc_application/widgets/section_header.dart';
 
 @RoutePage()
 class LeaveTypeSelectionPage extends StatelessWidget {
+
   const LeaveTypeSelectionPage({super.key});
 
   @override
