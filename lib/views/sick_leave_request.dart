@@ -1,10 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
 import 'package:qacc_application/widgets/date_form_field_widget.dart';
 import 'package:qacc_application/widgets/large_button.dart';
@@ -22,10 +26,12 @@ class SickLeaveRequest extends StatefulWidget {
 
 class _SickLeaveRequestState extends State<SickLeaveRequest> {
   final _formKey = GlobalKey<FormState>();
+  late int employeeId;
 
   // متغير لتخزين مسار الملف المختار
   File? _file;
   String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
+  bool isLoading = false;
 
   File? attachedMedicalFile;
   String? attachedMedicalFileName;
@@ -54,6 +60,14 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
   TextEditingController leaveEndController = TextEditingController();
   // تعريف متغير للتحكم في تاريخ المباشرة
   TextEditingController resumptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    employeeId = Provider.of<EmployeeProvider>(context, listen: false)
+        .employeeData!["id"];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -164,11 +178,13 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
                       ),
 
                       Gap(10.0),
-                      LargeButton(
-                        buttonText: 'إرسال الطلب',
-                        color: AppColors.primaryColor,
-                        onPressed: _submitForm,
-                      ),
+                      isLoading
+                          ? CircularProgressIndicator()
+                          : LargeButton(
+                              buttonText: 'إرسال الطلب',
+                              color: AppColors.primaryColor,
+                              onPressed: _submitForm,
+                            ),
                       Gap(20.0),
                     ],
                   ),
@@ -180,6 +196,80 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
       ),
     );
   }
+
+  // دالة لإرسال البيانات إلى API
+  void _sendRequestToAPI(Map<String, dynamic> requestData) async {
+    final url = "http://www.hr.qacc.ly/php/submit_sick_leave.php";
+    setState(() => isLoading = true);
+
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+      request.fields['employeeID'] = requestData['employee_id'];
+      request.fields['leave_type'] = requestData['leave_type'];
+      request.fields['isTasked'] = requestData['isTasked'];
+      request.fields['days'] = requestData['days'];
+      request.fields['request_date'] = requestData['request_date'];
+      request.fields['start_date'] = requestData['start_date'];
+      request.fields['end_date'] = requestData['end_date'];
+      request.fields['resume_date'] = requestData['resume_date'];
+
+      // أضف حقول التكليف فقط إذا كان الخيار "نعم"
+      if (requestData['isTasked'] == "نعم") {
+        request.fields['task_date'] = requestData['task_date'];
+        request.fields['book_number'] = requestData['book_number'];
+        request.fields['task'] = requestData['task'];
+        request.fields['department'] = requestData['department'];
+      }
+
+      if (_file != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'pdf_file',
+          _file!.path,
+        ));
+      }
+      if (attachedMedicalFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'medical_certificate',
+          attachedMedicalFile!.path,
+        ));
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = json.decode(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(jsonResponse['message'],textAlign: TextAlign.right,),
+            duration: Duration(seconds: 2),
+            backgroundColor: jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
+          ),
+        );
+        _resetFields();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل في إرسال الطلب'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('حدث خطأ: $e'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+
 
   void _submitForm() {
     setState(() {
@@ -201,29 +291,23 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
         }
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
-          '_selectedOption': _selectedOption,
-          'taskDateController': taskDateController.text,
-          '_file': _file,
-          'bookNumberController': bookNumberController.text,
-          'taskController': taskController.text,
-          'departmentController': departmentController.text,
-          'daysController': daysController.text,
-          'requestDateController': requestDateController.text,
-          'leaveStartController': leaveStartController.text,
-          'leaveEndController': leaveEndController.text,
-          'resumptionController': resumptionController.text,
-          'attachedMedicalFile': attachedMedicalFile,
+          'employee_id': employeeId.toString(), // إضافة employee_id لأنه مطلوب
+          'leave_type': "اجازة مرضية",
+          'isTasked': _selectedOption.toString(), // مطابق لـ API
+          'task_date': taskDateController.text, // مطابق لـ API
+          'book_number': bookNumberController.text, // مطابق لـ API
+          'task': taskController.text, // مطابق لـ API
+          'department': departmentController.text, // مطابق لـ API
+          'days': daysController.text, // مطابق لـ API
+          'request_date': requestDateController.text, // مطابق لـ API
+          'start_date': leaveStartController.text, // مطابق لـ API
+          'end_date': leaveEndController.text, // مطابق لـ API
+          'resume_date': resumptionController.text, // مطابق لـ API
+          'decision_file': _file, // مطابق لـ API
+          'medical_certificate': attachedMedicalFile, // مطابق لـ API
         };
 
-        // عرض رسالة نجاح بعد إرسال البيانات
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('البيانات: $requestData'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields();
+      _sendRequestToAPI(requestData);
       }
     } else if (_selectedOption == "لا") {
       // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
@@ -233,23 +317,19 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
         }
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
-          'daysController': daysController.text,
-          'requestDateController': requestDateController.text,
-          'leaveStartController': leaveStartController.text,
-          'leaveEndController': leaveEndController.text,
-          'resumptionController': resumptionController.text,
-          'attachedMedicalFile': attachedMedicalFile,
+          'employee_id': employeeId.toString(), // إضافة employee_id
+          'leave_type': "اجازة مرضية",
+          'isTasked': _selectedOption.toString(), // مطابق لـ API
+          'days': daysController.text, // مطابق لـ API
+          'request_date': requestDateController.text, // مطابق لـ API
+          'start_date': leaveStartController.text, // مطابق لـ API
+          'end_date': leaveEndController.text, // مطابق لـ API
+          'resume_date': resumptionController.text, // مطابق لـ API
+          'medical_certificate': attachedMedicalFile, // مطابق لـ API
         };
 
-        // عرض رسالة نجاح بعد إرسال البيانات
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('البيانات: $requestData'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields();
+         _sendRequestToAPI(requestData);
+
       }
     }
   }
@@ -306,3 +386,4 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
     }
   }
 }
+

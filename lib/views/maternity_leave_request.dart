@@ -1,10 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/widgets/date_form_field_widget.dart';
 import 'package:qacc_application/widgets/large_button.dart';
 import 'package:qacc_application/widgets/pdf_widget.dart';
@@ -25,6 +29,8 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
   // متغير لتخزين مسار الملف المختار
   File? _file;
   String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
+  late int employeeId;
+  bool isLoading = false;
 
   File? attachedMedicalFile;
   String? attachedMedicalFileName;
@@ -55,6 +61,14 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
   TextEditingController leaveEndController = TextEditingController();
   // تعريف متغير للتحكم في تاريخ المباشرة
   TextEditingController resumptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    employeeId = Provider.of<EmployeeProvider>(context, listen: false)
+        .employeeData!["id"];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,63 +138,65 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
                   departmentValidator: (value) =>
                       value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
                 ),
-                             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Container(
-                  padding: const EdgeInsets.all(15.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryColor.shade100,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'حدد مدة الإجازة',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: "14 أسبوعًا (طفل واحد)",
-                            groupValue: _selectedDays,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedDays = value!;
-                                daysController.text = (14 * 7).toString(); // 14 أسبوعًا = 98 يومًا
-                              });
-                            },
-                          ),
-                          Text("14 أسبوعًا (طفل واحد)"),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: "16 أسبوعًا (أكثر من طفل)",
-                            groupValue: _selectedDays,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedDays = value!;
-                                daysController.text = (16 * 7).toString(); // 16 أسبوعًا = 112 يومًا
-                              });
-                            },
-                          ),
-                          Text("16 أسبوعًا (أكثر من طفل)"),
-                        ],
-                      ),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(15.0),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondaryColor.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'حدد مدة الإجازة',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        Row(
+                          children: [
+                            Radio<String>(
+                              value: "14 أسبوعًا (طفل واحد)",
+                              groupValue: _selectedDays,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedDays = value!;
+                                  daysController.text = (14 * 7)
+                                      .toString(); // 14 أسبوعًا = 98 يومًا
+                                });
+                              },
+                            ),
+                            Text("14 أسبوعًا (طفل واحد)"),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Radio<String>(
+                              value: "16 أسبوعًا (أكثر من طفل)",
+                              groupValue: _selectedDays,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedDays = value!;
+                                  daysController.text = (16 * 7)
+                                      .toString(); // 16 أسبوعًا = 112 يومًا
+                                });
+                              },
+                            ),
+                            Text("16 أسبوعًا (أكثر من طفل)"),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Column(
                     children: [
-
                       Gap(25.0), // مسافة بين الحقول
                       DateFormFieldWidget(
-                        days: int.tryParse(daysController.text) ?? 0, // تمرير حقل عدد الأيام
+                        days: int.tryParse(daysController.text) ??
+                            0, // تمرير حقل عدد الأيام
                         requestDateController: requestDateController,
                         startDateController: leaveStartController,
                         endDateController: leaveEndController,
@@ -203,11 +219,13 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
                       ),
 
                       Gap(10.0),
-                      LargeButton(
-                        buttonText: 'إرسال الطلب',
-                        color: AppColors.primaryColor,
-                        onPressed: _submitForm,
-                      ),
+                      isLoading
+                          ? CircularProgressIndicator()
+                          : LargeButton(
+                              buttonText: 'إرسال الطلب',
+                              color: AppColors.primaryColor,
+                              onPressed: _submitForm,
+                            ),
                       Gap(20.0),
                     ],
                   ),
@@ -218,6 +236,83 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
         ),
       ),
     );
+  }
+
+  // دالة لإرسال البيانات إلى API
+  void _sendRequestToAPI(Map<String, dynamic> requestData) async {
+    final url = "http://www.hr.qacc.ly/php/submit_maternity_leave.php";
+    setState(() => isLoading = true);
+
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+      request.fields['employeeID'] = requestData['employee_id'];
+      request.fields['leave_type'] = requestData['leave_type'];
+      request.fields['isTasked'] = requestData['isTasked'];
+      request.fields['maternity_leave_duration'] = requestData['maternity_leave_duration'];
+      request.fields['days'] = requestData['days'];
+      request.fields['request_date'] = requestData['request_date'];
+      request.fields['start_date'] = requestData['start_date'];
+      request.fields['end_date'] = requestData['end_date'];
+      request.fields['resume_date'] = requestData['resume_date'];
+
+      // أضف حقول التكليف فقط إذا كان الخيار "نعم"
+      if (requestData['isTasked'] == "نعم") {
+        request.fields['task_date'] = requestData['task_date'];
+        request.fields['book_number'] = requestData['book_number'];
+        request.fields['task'] = requestData['task'];
+        request.fields['department'] = requestData['department'];
+      }
+
+      if (_file != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'pdf_file',
+          _file!.path,
+        ));
+      }
+      if (attachedMedicalFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'medical_certificate',
+          attachedMedicalFile!.path,
+        ));
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = json.decode(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              jsonResponse['message'],
+              textAlign: TextAlign.right,
+            ),
+            duration: Duration(seconds: 2),
+            backgroundColor:
+                jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
+          ),
+        );
+        _resetFields();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل في إرسال الطلب'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('حدث خطأ: $e'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   void _submitForm() {
@@ -240,29 +335,25 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
         }
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
-          '_selectedDays': _selectedDays,
-          'taskDateController': taskDateController.text,
-          '_file': _file,
-          'bookNumberController': bookNumberController.text,
-          'taskController': taskController.text,
-          'departmentController': departmentController.text,
-          'daysController': daysController.text,
-          'requestDateController': requestDateController.text,
-          'leaveStartController': leaveStartController.text,
-          'leaveEndController': leaveEndController.text,
-          'resumptionController': resumptionController.text,
-          'attachedMedicalFile': attachedMedicalFile,
+          'employee_id': employeeId.toString(), // إضافة employee_id لأنه مطلوب
+          'leave_type': "اجازة أمومة",
+          'isTasked': _selectedOption.toString(), // مطابق لـ API
+
+          'maternity_leave_duration': _selectedDays,
+          'task_date': taskDateController.text,
+          'decision_file': _file,
+          'book_number': bookNumberController.text,
+          'task': taskController.text,
+          'department': departmentController.text,
+          'days': daysController.text,
+          'request_date': requestDateController.text,
+          'start_date': leaveStartController.text,
+          'end_date': leaveEndController.text,
+          'resume_date': resumptionController.text,
+          'medical_certificate': attachedMedicalFile,
         };
 
-        // عرض رسالة نجاح بعد إرسال البيانات
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('البيانات: $requestData'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields();
+        _sendRequestToAPI(requestData);
       }
     } else if (_selectedOption == "لا") {
       // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
@@ -272,24 +363,20 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
         }
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
-          '_selectedDays': _selectedDays,
-          'daysController': daysController.text,
-          'requestDateController': requestDateController.text,
-          'leaveStartController': leaveStartController.text,
-          'leaveEndController': leaveEndController.text,
-          'resumptionController': resumptionController.text,
-          'attachedMedicalFile': attachedMedicalFile,
+          'employee_id': employeeId.toString(), // إضافة employee_id لأنه مطلوب
+          'leave_type': "اجازة أمومة",
+          'isTasked': _selectedOption.toString(), // مطابق لـ API
+
+          'maternity_leave_duration': _selectedDays,
+          'days': daysController.text,
+          'request_date': requestDateController.text,
+          'start_date': leaveStartController.text,
+          'end_date': leaveEndController.text,
+          'resume_date': resumptionController.text,
+          'medical_certificate': attachedMedicalFile,
         };
 
-        // عرض رسالة نجاح بعد إرسال البيانات
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('البيانات: $requestData'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields();
+        _sendRequestToAPI(requestData);
       }
     }
   }
