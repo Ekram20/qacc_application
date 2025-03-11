@@ -1,9 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:qacc_application/views/marriage_leave_info_page.dart';
 import 'package:qacc_application/widgets/note_box.dart';
@@ -22,6 +27,9 @@ class MarriageLeavePage extends StatefulWidget {
 }
 
 class _MarriageLeavePageState extends State<MarriageLeavePage> {
+    // تعريف متغير للتحكم في عدد الأيام
+  TextEditingController daysController = TextEditingController(text: (14).toString());
+
   final TextEditingController requestDateController = TextEditingController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
@@ -36,11 +44,20 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
 
   bool isSubmitted = false;
   File? _file;
+  late int employeeId;
+  bool isLoading = false;
 
   File? attachedMarriageFile;
   String? _attachedMarriageFileName;
   bool isSubmittedStateNo = false;
 
+  @override
+  void initState() {
+    super.initState();
+
+    employeeId = Provider.of<EmployeeProvider>(context, listen: false)
+        .employeeData!["id"];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +109,7 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                   file: _file,
                   openFilePicker: _openFilePicker,
                   dateValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال تاريخ التكليف' : null,
+                      value!.isEmpty ? 'يرجى إدخال تاريخ التكليف' : null,
                   pdfValidator: (value) => _file == null && isSubmitted
                       ? 'يرجى إرفاق ملف PDF'
                       : null,
@@ -104,18 +121,18 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                   onDateSelected: (date) {
                     setState(() {
                       taskDateController.text =
-                      "${date.year}-${date.month}-${date.day}";
+                          "${date.year}-${date.month}-${date.day}";
                     });
                   },
                   bookNumberController: bookNumberController,
                   bookNumberValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
+                      value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
                   taskController: taskController,
                   taskValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال المهمة' : null,
+                      value!.isEmpty ? 'يرجى إدخال المهمة' : null,
                   departmentController: departmentController,
                   departmentValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
+                      value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
                 ),
                 Container(
                   padding: EdgeInsets.all(15.0),
@@ -139,21 +156,22 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                           });
                         },
                         validator: (value) =>
-                        attachedMarriageFile == null && isSubmittedStateNo
-                            ? 'يرجى إرفاق صورة من وثيقة الزواج '
-                            : null,
+                            attachedMarriageFile == null && isSubmittedStateNo
+                                ? 'يرجى إرفاق صورة من وثيقة الزواج '
+                                : null,
                       ),
-                      const Gap(20),
-                      LargeButton(
-                        buttonText: 'إرسال الطلب',
-                        onPressed: _submitForm,
-                        color: AppColors.primaryColor,
-                      ),
-                      Gap(20)
+                      Gap(10.0),
+                      isLoading
+                          ? CircularProgressIndicator()
+                          : LargeButton(
+                              buttonText: 'إرسال الطلب',
+                              color: AppColors.primaryColor,
+                              onPressed: _submitForm,
+                            ),
+                      Gap(20.0),
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
@@ -172,6 +190,82 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
       setState(() {
         _file = File(result.files.single.path!);
       });
+    }
+  }
+
+  // دالة لإرسال البيانات إلى API
+  void _sendRequestToAPI(Map<String, dynamic> requestData) async {
+    final url = "http://www.hr.qacc.ly/php/submit_marriage_leave.php";
+    setState(() => isLoading = true);
+
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+      request.fields['employeeID'] = requestData['employee_id'];
+      request.fields['leave_type'] = requestData['leave_type'];
+      request.fields['isTasked'] = requestData['isTasked'];
+      request.fields['days'] = requestData['days'];
+      request.fields['request_date'] = requestData['request_date'];
+      request.fields['start_date'] = requestData['start_date'];
+      request.fields['end_date'] = requestData['end_date'];
+      request.fields['resume_date'] = requestData['resume_date'];
+
+      // أضف حقول التكليف فقط إذا كان الخيار "نعم"
+      if (requestData['isTasked'] == "نعم") {
+        request.fields['task_date'] = requestData['task_date'];
+        request.fields['book_number'] = requestData['book_number'];
+        request.fields['task'] = requestData['task'];
+        request.fields['department'] = requestData['department'];
+      }
+
+      if (_file != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'pdf_file',
+          _file!.path,
+        ));
+      }
+      if (attachedMarriageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'marriage_certificate',
+          attachedMarriageFile!.path,
+        ));
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = json.decode(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              jsonResponse['message'],
+              textAlign: TextAlign.right,
+            ),
+            duration: Duration(seconds: 2),
+            backgroundColor:
+                jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
+          ),
+        );
+        _resetFields();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل في إرسال الطلب'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('حدث خطأ: $e'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -195,27 +289,23 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
         }
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
-          '_selectedOption': _selectedOption,
-          'taskDate': taskDateController.text,
-          '_file': _file,
-          'bookNumber': bookNumberController.text,
+          'employee_id': employeeId.toString(),
+          'isTasked': _selectedOption.toString(),
+          'leave_type': "اجازة الزواج",
+          'task_date': taskDateController.text,
+          'decision_file': _file,
+          'book_number': bookNumberController.text,
           'task': taskController.text,
           'department': departmentController.text,
-          'requestDate': requestDateController.text,
-          'startDate': startDateController.text,
-          'endDate': endDateController.text,
-          'resumeDate': resumeDateController.text,
+          'days': daysController.text,
+          'request_date': requestDateController.text,
+          'start_date': startDateController.text,
+          'end_date': endDateController.text,
+          'resume_date': resumeDateController.text,
+          'marriage_certificate': attachedMarriageFile,
         };
 
-        // عرض رسالة نجاح بعد إرسال البيانات
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('تم إرسال البيانات بنجاح: $requestData'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields(); // إعادة تعيين الحقول
+        _sendRequestToAPI(requestData);
       }
     } else if (_selectedOption == "لا") {
       // إذا تم اختيار "لا" فقط يتم التحقق من الحقول
@@ -225,25 +315,19 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
         }
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
-          'requestDate': requestDateController.text,
-          'startDate': startDateController.text,
-          'endDate': endDateController.text,
-          'resumeDate': resumeDateController.text,
-          'taskDate': taskDateController.text,
-          'bookNumber': bookNumberController.text,
-          'task': taskController.text,
-          'department': departmentController.text,
-          'fileAttached': _file != null,
+          'employee_id': employeeId.toString(),
+          'isTasked': _selectedOption.toString(),
+          'leave_type': "اجازة الزواج",
+          'task_date': taskDateController.text,
+          'days': daysController.text,
+          'request_date': requestDateController.text,
+          'start_date': startDateController.text,
+          'end_date': endDateController.text,
+          'resume_date': resumeDateController.text,
+          'marriage_certificate': attachedMarriageFile,
         };
 
-        // عرض رسالة نجاح بعد إرسال البيانات
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('تم إرسال البيانات بنجاح: $requestData'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields(); // إعادة تعيين الحقول
+        _sendRequestToAPI(requestData);
       }
     }
   }
@@ -280,5 +364,4 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
       });
     }
   }
-
 }
