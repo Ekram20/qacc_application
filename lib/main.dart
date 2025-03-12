@@ -31,6 +31,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        textSelectionTheme:  TextSelectionThemeData(
+          selectionColor: AppColors.primaryColor.shade50, // ✅ لون التحديد الذهبي
+          selectionHandleColor: AppColors.primaryColor.shade50, // ✅ لون المقبض عند تعديل التحديد
+          cursorColor: AppColors.primaryColor.shade50, // ✅ لون المؤشر الذهبي
+        ),
         scaffoldBackgroundColor: AppColors.backgroundColor,
         fontFamily: '',
         textTheme: TextTheme(

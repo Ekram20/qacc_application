@@ -1,36 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qacc_application/models/app_colors.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        textSelectionTheme:  TextSelectionThemeData(
-          selectionColor: AppColors.primaryColor.shade50, // ✅ لون التحديد الذهبي
-          selectionHandleColor: AppColors.primaryColor.shade50, // ✅ لون المقبض عند تعديل التحديد
-          cursorColor: AppColors.primaryColor.shade50, // ✅ لون المؤشر الذهبي
-        ),
-      ),
-      home: const Scaffold(
-        body: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: CustomTextField(
-            labelText: "اسم المستخدم",
-            icon: Icons.person,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({

@@ -21,55 +21,61 @@ class DateFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      readOnly: readOnly,
-      cursorColor: AppColors.primaryColor.shade400,
-      style: Theme.of(context).textTheme.bodyMedium,
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: Theme.of(context).textTheme.bodyMedium,
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.calendar_today),
-        fillColor: AppColors.secondaryColor.shade50,
-        filled: true,
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.secondaryColor.shade300),
+    return TextSelectionTheme(
+        data:  TextSelectionThemeData(
+        selectionColor: AppColors.primaryColor, // ✅ تأكيد اللون الذهبي عند التحديد
+        selectionHandleColor:AppColors.primaryColor, // ✅ لون مقبض التحديد الذهبي
+    ),
+      child: TextFormField(
+        controller: controller,
+        readOnly: readOnly,
+        cursorColor: AppColors.primaryColor.shade400,
+        style: Theme.of(context).textTheme.bodyMedium,
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: Theme.of(context).textTheme.bodyMedium,
+          border: OutlineInputBorder(),
+          prefixIcon: Icon(Icons.calendar_today),
+          fillColor: AppColors.secondaryColor.shade50,
+          filled: true,
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.secondaryColor.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.secondaryColor.shade600),
+          ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.secondaryColor.shade600),
-        ),
+        validator: validator, // إضافة التحقق هنا
+        onTap: () async {
+          if (readOnly) return; // تخطي النقر إذا كان الحقل للقراءة فقط
+          DateTime? date = await showDatePicker(
+            context: context,
+            initialDate: initialDate ?? DateTime.now(),
+            firstDate: DateTime(1900),
+            lastDate: DateTime(2100),
+            builder: (context, child) {
+              return Theme(
+                data: ThemeData.light().copyWith(
+                  primaryColor: AppColors.primaryColor.shade300,
+                  hintColor: AppColors.primaryColor.shade500,
+                  colorScheme: ColorScheme.light(
+                    primary: AppColors.primaryColor.shade600,
+                    onPrimary: Colors.white,
+                    surface: Colors.white,
+                    onSurface: Colors.black,
+                  ),
+                  buttonTheme: ButtonThemeData(
+                    textTheme: ButtonTextTheme.primary,
+                  ),
+                ),
+                child: child!,
+              );
+            },
+          );
+          if (date == null) return;
+          onDateSelected(date);
+        },
       ),
-      validator: validator, // إضافة التحقق هنا
-      onTap: () async {
-        if (readOnly) return; // تخطي النقر إذا كان الحقل للقراءة فقط
-        DateTime? date = await showDatePicker(
-          context: context,
-          initialDate: initialDate ?? DateTime.now(),
-          firstDate: DateTime(1900),
-          lastDate: DateTime(2100),
-          builder: (context, child) {
-            return Theme(
-              data: ThemeData.light().copyWith(
-                primaryColor: AppColors.primaryColor.shade300,
-                hintColor: AppColors.primaryColor.shade500,
-                colorScheme: ColorScheme.light(
-                  primary: AppColors.primaryColor.shade600,
-                  onPrimary: Colors.white,
-                  surface: Colors.white,
-                  onSurface: Colors.black,
-                ),
-                buttonTheme: ButtonThemeData(
-                  textTheme: ButtonTextTheme.primary,
-                ),
-              ),
-              child: child!,
-            );
-          },
-        );
-        if (date == null) return;
-        onDateSelected(date);
-      },
     );
   }
 }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:qacc_application/models/app_colors.dart';
-import '../widgets/section_header.dart';
 import '../widgets/date_form_field.dart';
 
 class DateFormFieldWidgetFS extends StatefulWidget {
@@ -30,37 +28,31 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
   @override
   void initState() {
     super.initState();
-    // تعبئة التاريخ الحالي في حقل تاريخ الطلب
-    widget.requestDateController.text =
-        DateFormat('yyyy-MM-dd').format(currentDate);
-    // استماع لتغييرات تاريخ نهاية الإجازة لتحديث تاريخ المباشرة
+    // تعيين تاريخ الطلب تلقائيًا
+    widget.requestDateController.text = DateFormat('yyyy-MM-dd').format(currentDate);
+    // استماع لتغيير تاريخ نهاية الإجازة لحساب تاريخ المباشرة
     widget.endDateController.addListener(calculateResumeDate);
   }
 
   void calculateEndDate() {
     if (widget.days <= 0 || widget.startDateController.text.isEmpty) {
-      setState(() {
-        widget.endDateController.text = '';
-      });
+      widget.endDateController.text = '';
       return;
     }
 
     DateTime? startDate = DateTime.tryParse(widget.startDateController.text);
     if (startDate == null) {
-      setState(() {
-        widget.endDateController.text = '';
-      });
+      widget.endDateController.text = '';
       return;
     }
 
     DateTime tempDate = startDate;
-    int addedDays = 1;
+    int addedDays = 0;
 
-    // إضافة عدد الأيام مع تجاوز أيام الجمعة والسبت
+    // إضافة الأيام مع تجاوز الجمعة والسبت
     while (addedDays < widget.days) {
       tempDate = tempDate.add(const Duration(days: 1));
-      if (tempDate.weekday != DateTime.friday &&
-          tempDate.weekday != DateTime.saturday) {
+      if (tempDate.weekday != DateTime.friday && tempDate.weekday != DateTime.saturday) {
         addedDays++;
       }
     }
@@ -71,23 +63,26 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
   }
 
   void calculateResumeDate() {
+    if (widget.endDateController.text.isEmpty) {
+      widget.resumeDateController.text = '';
+      return;
+    }
+
     DateTime? endDate = DateTime.tryParse(widget.endDateController.text);
     if (endDate == null) {
-      setState(() {
-        widget.resumeDateController.text = '';
-      });
+      widget.resumeDateController.text = '';
       return;
     }
 
     DateTime tempDate = endDate;
+
+    // تجاوز يومي الجمعة والسبت
     do {
       tempDate = tempDate.add(const Duration(days: 1));
-    } while (tempDate.weekday == DateTime.friday ||
-        tempDate.weekday == DateTime.saturday);
+    } while (tempDate.weekday == DateTime.friday || tempDate.weekday == DateTime.saturday);
 
     setState(() {
-      widget.resumeDateController.text =
-          DateFormat('yyyy-MM-dd').format(tempDate);
+      widget.resumeDateController.text = DateFormat('yyyy-MM-dd').format(tempDate);
     });
   }
 
@@ -101,9 +96,8 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
 
     if (pickedDate != null) {
       setState(() {
-        widget.startDateController.text =
-            DateFormat('yyyy-MM-dd').format(pickedDate);
-        calculateEndDate(); // تحديث تاريخ نهاية الإجازة
+        widget.startDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+        calculateEndDate(); // حساب تاريخ نهاية الإجازة تلقائيًا
       });
     }
   }
@@ -113,7 +107,6 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // حقل تاريخ الطلب
         DateFormField(
           controller: widget.requestDateController,
           readOnly: true,
@@ -121,24 +114,16 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
           onDateSelected: (date) {},
         ),
         const SizedBox(height: 16),
-        // حقل تاريخ بدء الإجازة
         DateFormField(
           controller: widget.startDateController,
           labelText: 'تاريخ بدء الإجازة',
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'يرجى إدخال تاريخ بدء الإجازة';
-            }
-            return null;
-          },
+          validator: (value) => value == null || value.isEmpty ? 'يرجى إدخال تاريخ بدء الإجازة' : null,
           onDateSelected: (date) {
-            widget.startDateController.text =
-                DateFormat('yyyy-MM-dd').format(date!);
-            calculateEndDate(); // تحديث تاريخ نهاية الإجازة
+            widget.startDateController.text = DateFormat('yyyy-MM-dd').format(date!);
+            calculateEndDate(); // حساب تاريخ نهاية الإجازة تلقائيًا
           },
         ),
         const SizedBox(height: 16),
-        // حقل تاريخ نهاية الإجازة
         DateFormField(
           controller: widget.endDateController,
           readOnly: true,
@@ -146,7 +131,6 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
           onDateSelected: (date) {},
         ),
         const SizedBox(height: 16),
-        // حقل تاريخ المباشرة
         DateFormField(
           controller: widget.resumeDateController,
           readOnly: true,
