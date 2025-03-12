@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
 import 'package:qacc_application/widgets/date_form_field_widget.dart';
@@ -11,6 +12,8 @@ import 'package:qacc_application/widgets/large_button.dart';
 import 'package:qacc_application/widgets/leave_reason_field.dart';
 import 'package:qacc_application/widgets/pdf_widget.dart';
 import 'package:qacc_application/widgets/section_header.dart';
+
+import '../providers/employee_provider.dart';
 
 @RoutePage()
 class EmergencyLeaveRequest extends StatefulWidget {
@@ -20,12 +23,16 @@ class EmergencyLeaveRequest extends StatefulWidget {
   State<EmergencyLeaveRequest> createState() => _EmergencyLeaveRequestState();
 }
 
+
 class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
   final _formKey = GlobalKey<FormState>();
 
   File? _file;
   String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
 
+  bool isSubmitted = false; // لتتبع حالة الإرسال
+
+  bool isSubmittedStateNo = false;
   // تعريف متغير للتحكم في عدد الأيام
   TextEditingController daysController = TextEditingController();
   // تعريف متغير للتحكم في تاريخ الطلب
@@ -38,6 +45,23 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
   TextEditingController resumptionController = TextEditingController();
   // تعريف متغير للتحكم في سبب الإجازة
   TextEditingController leaveReasonController = TextEditingController();
+
+  //عدد الايام المسموح بها
+  TextEditingController _leaveController = TextEditingController();
+
+  late int employeeId ;
+  bool _isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+
+    final employeeData =
+        Provider.of<EmployeeProvider>(context, listen: false).employeeData;
+
+    _leaveController.text = employeeData?["emergency_leave_balance"].toString() ?? "";
+    employeeId = employeeData?["id"] ?? 0;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +121,7 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
                       Gap(16.0), // مسافة بين الحقول
                       // حقل عدد الأيام المسموح بها
                       CustomTextField(
-                        controller: TextEditingController(text: "12"),
+                        controller:_leaveController,
                         readOnly: true,
                         keyboardType: TextInputType.text,
                         labelText: 'عدد الأيام المسموح بها',

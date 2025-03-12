@@ -24,6 +24,7 @@ class DateFormField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       readOnly: readOnly,
+      cursorColor: AppColors.primaryColor.shade400,
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         labelText: labelText,
@@ -47,6 +48,24 @@ class DateFormField extends StatelessWidget {
           initialDate: initialDate ?? DateTime.now(),
           firstDate: DateTime(1900),
           lastDate: DateTime(2100),
+          builder: (context, child) {
+            return Theme(
+              data: ThemeData.light().copyWith(
+                primaryColor: AppColors.primaryColor.shade300,
+                hintColor: AppColors.primaryColor.shade500,
+                colorScheme: ColorScheme.light(
+                  primary: AppColors.primaryColor.shade600,
+                  onPrimary: Colors.white,
+                  surface: Colors.white,
+                  onSurface: Colors.black,
+                ),
+                buttonTheme: ButtonThemeData(
+                  textTheme: ButtonTextTheme.primary,
+                ),
+              ),
+              child: child!,
+            );
+          },
         );
         if (date == null) return;
         onDateSelected(date);

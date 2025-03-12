@@ -28,10 +28,12 @@ class AnnualLeaveRequest extends StatefulWidget {
 
 class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   final _formKey = GlobalKey<FormState>();
-
+  bool isLoading = false;
   // متغير لتخزين مسار الملف المختار
   File? _file;
   bool isSubmitted = false; // لتتبع حالة الإرسال
+  bool isSubmittedStateNo = false;
+
 
   String? _selectedOption = "نعم"; // القيمة المختارة
   String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
@@ -69,7 +71,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
         Provider.of<EmployeeProvider>(context, listen: false).employeeData;
 
     _leaveController.text = employeeData?["annual_leave"].toString() ?? "";
-    employeeId = employeeData?["id"] ?? "";
+    employeeId = employeeData?["id"] ?? 0;
   }
 
 
@@ -207,8 +209,10 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                         endDateController: leaveEndController,
                         resumeDateController: resumptionController,
                       ),
-                      Gap(16.0),
-                      LargeButton(
+                      Gap(10.0),
+                      isLoading
+                          ? CircularProgressIndicator()
+                          : LargeButton(
                         buttonText: 'إرسال الطلب',
                         color: AppColors.primaryColor,
                         onPressed: _submitForm,
@@ -224,77 +228,133 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
       ),
     );
   }
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
+
+  // دالة لإرسال البيانات إلى API
+  void _sendRequestToAPI(Map<String, dynamic> requestData) async {
+    final url = "https://hr.qacc.ly/php/submit_annual_leave.php";
+    setState(() => isLoading = true);
+
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+      request.fields['employeeID'] = requestData['employee_id'];
+      request.fields['leave_type'] = requestData['leave_type'];
+      request.fields['isTasked'] = requestData['isTasked'];
+      request.fields['days'] = requestData['days'];
+      request.fields['request_date'] = requestData['request_date'];
+      request.fields['start_date'] = requestData['start_date'];
+      request.fields['end_date'] = requestData['end_date'];
+      request.fields['resume_date'] = requestData['resume_date'];
+
+      // أضف حقول التكليف فقط إذا كان الخيار "نعم"
+      if (requestData['isTasked'] == "نعم") {
+        request.fields['task_date'] = requestData['task_date'];
+        request.fields['book_number'] = requestData['book_number'];
+        request.fields['task'] = requestData['task'];
+        request.fields['department'] = requestData['department'];
+      }
+
+      if (_file != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'pdf_file',
+          _file!.path,
+        ));
+      }
+
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = json.decode(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              jsonResponse['message'],
+              textAlign: TextAlign.right,
+            ),
+            duration: Duration(seconds: 2),
+            backgroundColor:
+            jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
+          ),
+        );
+        _resetFields();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل في إرسال الطلب'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('حدث خطأ: $e'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+
+  void _submitForm() {
+    setState(() {
+      isSubmittedStateNo = true; // تعيين حالة الإرسال إلى true
+    });
+    if (_selectedOption == "نعم") {
       setState(() {
-        isSubmitted = true;
+        isSubmitted = true; // تعيين حالة الإرسال إلى true
       });
-
-      try {
-        var uri = Uri.parse("https://hr.qacc.ly/php/submit_annual_leave.php");
-        var request = http.MultipartRequest("POST", uri);
-
-        // تجهيز البيانات المشتركة بين الحالتين
-        Map<String, String> formData = {
-          "employeeID": employeeId.toString(),
-          "leave_type": "اجازة سنوية",
-          "isTasked": _selectedOption.toString(),
+      // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
+      if (_formKey.currentState!.validate()) {
+        // تحقق إضافي لضمان أن الملف موجود عند اختيار "نعم"
+        if (_selectedOption == "نعم" && _file == null) {
+          return; // إيقاف الإرسال إذا لم يتم اختيار ملف
+        }
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          'employee_id': employeeId.toString(), // إضافة employee_id لأنه مطلوب
+          'leave_type': "اجازة سنوية ",
+          'isTasked': _selectedOption.toString(), // مطابق لـ API
+          "task_date": taskDateController.text,
+          'decision_file': _file,
+          "book_number": bookNumberController.text,
+          "task": taskController.text,
+          "department": departmentController.text,
           "days": daysController.text,
           "request_date": requestDateController.text,
           "start_date": leaveStartController.text,
           "end_date": leaveEndController.text,
           "resume_date": resumptionController.text,
         };
+        _sendRequestToAPI(requestData);
+        // عرض رسالة نجاح بعد إرسال البيانات
 
-        // إضافة الحقول المتعلقة بالتكليف فقط إذا كانت "نعم"
-        if (_selectedOption == "نعم") {
-          formData.addAll({
-            "task_date": taskDateController.text,
-            "book_number": bookNumberController.text,
-            "task": taskController.text,
-            "department": departmentController.text,
-          });
 
-          // التحقق من وجود الملف عند اختيار "نعم"
-          if (_file == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("يرجى رفع ملف عند اختيار 'نعم'")),
-            );
-            return;
-          }
+      }
+    } else if (_selectedOption == "لا") {
+      // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
+      if (_formKey.currentState!.validate()) {
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          'employee_id': employeeId.toString(), // إضافة employee_id لأنه مطلوب
+          'leave_type': "اجازة سنوية",
+          'isTasked': _selectedOption.toString(), // مطابق لـ API
+          "days": daysController.text,
+          "request_date": requestDateController.text,
+          "start_date": leaveStartController.text,
+          "end_date": leaveEndController.text,
+          "resume_date": resumptionController.text,
+        };
+        _sendRequestToAPI(requestData);
 
-          // إضافة الملف إلى الطلب
-          request.files.add(await http.MultipartFile.fromPath(
-            "pdf_file",
-            _file!.path,
-            contentType: MediaType("application", "pdf"),
-          ));
-        }
-
-        // إضافة البيانات إلى الطلب
-        request.fields.addAll(formData);
-
-        var streamedResponse = await request.send();
-        var response = await http.Response.fromStream(streamedResponse);
-
-        if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("تم إرسال الطلب بنجاح")),
-          );
-          _resetFields();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("حدث خطأ أثناء إرسال الطلب")),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("خطأ: ${e.toString()}")),
-        );
       }
     }
   }
-
 
   void _resetFields() {
     setState(() {
