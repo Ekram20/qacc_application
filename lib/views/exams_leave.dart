@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:qacc_application/providers/employee_provider.dart';
 
 import '../models/app_colors.dart';
+import '../widgets/circularProgressIndicator.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/date_form_field_widget.dart';
 import '../widgets/large_button.dart';
@@ -171,7 +172,7 @@ class _ExamsLeaveState extends State<ExamsLeave> {
                       ),
                       Gap(10.0),
                       isLoading
-                          ? CircularProgressIndicator()
+                          ? CustomLoadingIndicator()
                           : LargeButton(
                               buttonText: 'إرسال الطلب',
                               color: AppColors.primaryColor,

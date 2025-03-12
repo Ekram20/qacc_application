@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/widgets/message_bubble.dart';
 
+import '../widgets/circularProgressIndicator.dart';
+
 class ArchivesScreen extends StatefulWidget {
   const ArchivesScreen({super.key});
 
@@ -74,7 +76,7 @@ class _ArchivesScreenState extends State<ArchivesScreen> {
       body: Directionality(
         textDirection: TextDirection.rtl,
         child: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(child: CustomLoadingIndicator())
             : _messages.isEmpty
                 ? Center(child: Text('لا يوجد لديك رسائل بعد'))
                 : ListView.builder(

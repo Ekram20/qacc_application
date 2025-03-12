@@ -12,6 +12,7 @@ import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:qacc_application/views/marriage_leave_info_page.dart';
 import 'package:qacc_application/widgets/note_box.dart';
+import '../widgets/circularProgressIndicator.dart';
 import '../widgets/date_form_field_widget.dart';
 import '../widgets/pdf_widget.dart';
 import '../widgets/section_header.dart';
@@ -162,7 +163,7 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
                       ),
                       Gap(10.0),
                       isLoading
-                          ? CircularProgressIndicator()
+                          ? CustomLoadingIndicator()
                           : LargeButton(
                               buttonText: 'إرسال الطلب',
                               color: AppColors.primaryColor,

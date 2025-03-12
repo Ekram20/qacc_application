@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/widgets/message_bubble.dart';
 
+import '../widgets/circularProgressIndicator.dart';
+
 class ArchivesAdminScreen extends StatefulWidget {
   const ArchivesAdminScreen({super.key});
 
@@ -74,7 +76,7 @@ class _ArchivesAdminScreenState extends State<ArchivesAdminScreen> {
       body: Directionality(
         textDirection: TextDirection.rtl,
         child: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(child: CustomLoadingIndicator())
             : _messages.isEmpty
                 ? Center(child: Text('لا يوجد لديك رسائل بعد'))
                 : ListView.builder(

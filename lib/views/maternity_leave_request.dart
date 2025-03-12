@@ -15,6 +15,8 @@ import 'package:qacc_application/widgets/pdf_widget.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 import 'package:qacc_application/widgets/task_check_form.dart';
 
+import '../widgets/circularProgressIndicator.dart';
+
 @RoutePage()
 class MaternityLeaveRequest extends StatefulWidget {
   const MaternityLeaveRequest({super.key});
@@ -220,7 +222,7 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
 
                       Gap(10.0),
                       isLoading
-                          ? CircularProgressIndicator()
+                          ? CustomLoadingIndicator()
                           : LargeButton(
                               buttonText: 'إرسال الطلب',
                               color: AppColors.primaryColor,
