@@ -16,6 +16,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import '../providers/employee_provider.dart';
+import '../widgets/circularProgressIndicator.dart';
 
 @RoutePage()
 class AnnualLeaveRequest extends StatefulWidget {
@@ -211,7 +212,9 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                       ),
                       Gap(10.0),
                       isLoading
-                          ? CircularProgressIndicator()
+                          ? CustomLoadingIndicator(
+
+                      )
                           : LargeButton(
                         buttonText: 'إرسال الطلب',
                         color: AppColors.primaryColor,
