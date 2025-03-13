@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:qacc_application/widgets/image_text_card.dart';
@@ -14,69 +15,72 @@ class EmployeeFiles extends StatelessWidget {
         body: Directionality(
           textDirection: TextDirection.rtl,
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Gap(20),
-                SectionHeader(title: 'الملف المعني للموظف'),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Audit.png',
-                                mainText: 'التكليفات'),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Business_Group.png',
-                                mainText: 'الزيارات'),
-                          ),
-                        ],
-                      ),
-                      Gap(15),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/People_Skin_Type.png',
-                                mainText: 'تشكيل لجان'),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Ratings.png',
-                                mainText: 'تقرير الكفاءة \n السنوية'),
-                          ),
-                        ],
-                      ),
-                      Gap(15),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                              image: 'assets/images/Present_to_All.png',
-                              mainText: 'قرارات ترقيات',
+            child: FadeInUp(
+              duration: Duration(seconds: 1),
+              child: Column(
+                children: [
+                  Gap(20),
+                  SectionHeader(title: 'الملف المعني للموظف'),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/Audit.png',
+                                  mainText: 'التكليفات'),
                             ),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Google_Calendar.png',
-                                mainText: 'الإجازات'),
-                          ),
-                        ],
-                      ),
-                      Gap(15),
-                      LabelCard(label: 'أخرى'),
-                      Gap(20),
-                    ],
+                            Gap(15),
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/Business_Group.png',
+                                  mainText: 'الزيارات'),
+                            ),
+                          ],
+                        ),
+                        Gap(15),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/People_Skin_Type.png',
+                                  mainText: 'تشكيل لجان'),
+                            ),
+                            Gap(15),
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/Ratings.png',
+                                  mainText: 'تقرير الكفاءة \n السنوية'),
+                            ),
+                          ],
+                        ),
+                        Gap(15),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ImageTextCard(
+                                image: 'assets/images/Present_to_All.png',
+                                mainText: 'قرارات ترقيات',
+                              ),
+                            ),
+                            Gap(15),
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/Google_Calendar.png',
+                                  mainText: 'الإجازات'),
+                            ),
+                          ],
+                        ),
+                        Gap(15),
+                        LabelCard(label: 'أخرى'),
+                        Gap(20),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ));

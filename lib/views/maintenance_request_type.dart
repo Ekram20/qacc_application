@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -27,49 +28,52 @@ class MaintenanceRequestType extends StatelessWidget {
         body: Directionality(
           textDirection: TextDirection.rtl,
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Gap(20),
-                SectionHeader(title: 'حدد نوع الصيانة المطلوب'),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(child: Container()),
-                          Gap(15),
-                          Expanded(
-                            flex: 2,
-                            child: ImageTextCard(
-                                image: 'assets/images/Computer_Support.png',
-                                mainText: 'طلب الكتروني'),
-                          ),
-                          Gap(15),
-                          Expanded(child: Container()),
-                        ],
-                      ),
-                      Gap(15),
-                      Row(
-                        children: [
-                          Expanded(child: Container()),
-                          Gap(15),
-                          Expanded(
-                            flex: 2,
-                            child: ImageTextCard(
-                                image: 'assets/images/Engineer.png',
-                                mainText: 'طلب خدمي'),
-                          ),
-                          Gap(15),
-                          Expanded(child: Container()),
-                        ],
-                      ),
+            child: FadeInUp(
+              duration: Duration(seconds: 1),
+              child: Column(
+                children: [
+                  Gap(20),
+                  SectionHeader(title: 'حدد نوع الصيانة المطلوب'),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(child: Container()),
+                            Gap(15),
+                            Expanded(
+                              flex: 2,
+                              child: ImageTextCard(
+                                  image: 'assets/images/Computer_Support.png',
+                                  mainText: 'طلب الكتروني'),
+                            ),
+                            Gap(15),
+                            Expanded(child: Container()),
+                          ],
+                        ),
+                        Gap(15),
+                        Row(
+                          children: [
+                            Expanded(child: Container()),
+                            Gap(15),
+                            Expanded(
+                              flex: 2,
+                              child: ImageTextCard(
+                                  image: 'assets/images/Engineer.png',
+                                  mainText: 'طلب خدمي'),
+                            ),
+                            Gap(15),
+                            Expanded(child: Container()),
+                          ],
+                        ),
 
-                      Gap(20),
-                    ],
+                        Gap(20),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ));

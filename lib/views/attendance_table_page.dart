@@ -4,14 +4,17 @@ import 'package:gap/gap.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
-
+import '../providers/employee_provider.dart';
+import '../widgets/circularProgressIndicator.dart';
+import '../widgets/date_form_field.dart';
 import '../widgets/section_header.dart';
 
 @RoutePage()
 class AttendanceTablePage extends StatefulWidget {
-  final int employeeID;
-  const AttendanceTablePage({Key? key, required this.employeeID}) : super(key: key);
+
+  const AttendanceTablePage({Key? key}) : super(key: key);
 
   @override
   _AttendanceTablePageState createState() => _AttendanceTablePageState();
@@ -22,18 +25,23 @@ class _AttendanceTablePageState extends State<AttendanceTablePage> {
   TextEditingController startDateController = TextEditingController();
   TextEditingController endDateController = TextEditingController();
   List<dynamic> filteredAttendance = [];
-
+  late String employeeNumber ;
   @override
   void initState() {
     super.initState();
-    attendanceStream = getAttendanceStream(widget.employeeID);
+    final employeeData =
+        Provider.of<EmployeeProvider>(context, listen: false).employeeData;
+
+
+    employeeNumber = employeeData?["employee_number"] ?? "";
+    attendanceStream = getAttendanceStream(employeeNumber);
   }
 
   // دالة لجلب بيانات الحضور كـ Stream
-  Stream<List<dynamic>> getAttendanceStream(int employeeID) async* {
+  Stream<List<dynamic>> getAttendanceStream(String employeeNumber) async* {
     while (true) {
       try {
-        final response = await http.get(Uri.parse('https://hr.qacc.ly/php/attendance_api.php?employeeID=$employeeID'));
+        final response = await http.get(Uri.parse('https://hr.qacc.ly/php/attendance_api.php?employeeID=$employeeNumber'));
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           filterAttendanceByDate(data);
@@ -129,54 +137,36 @@ class _AttendanceTablePageState extends State<AttendanceTablePage> {
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
+                    child: DateFormField(
                       controller: startDateController,
-                      readOnly: true,
-                      onTap: () => _selectDate(context, startDateController, isStartDate: true),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        labelText: 'تاريخ البداية',
-                        labelStyle: Theme.of(context).textTheme.bodyMedium,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.calendar_today),
-                        fillColor: AppColors.secondaryColor.shade50,
-                        filled: true,
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.secondaryColor.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.secondaryColor.shade600),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      ),
+                      labelText: 'تاريخ البداية',
+                      readOnly: false,
+                      onDateSelected: (selectedDate) {
+                        if (selectedDate != null) {
+                          final formattedDate = formatDate(selectedDate);
+                          startDateController.text = formattedDate;
+                        }
+                      },
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: TextField(
+                    child: DateFormField(
                       controller: endDateController,
-                      readOnly: true,
-                      onTap: () => _selectDate(context, endDateController, isStartDate: false),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        labelText: 'تاريخ النهاية',
-                        labelStyle: Theme.of(context).textTheme.bodyMedium,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.calendar_today),
-                        fillColor: AppColors.secondaryColor.shade50,
-                        filled: true,
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.secondaryColor.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.secondaryColor.shade600),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      ),
+                      labelText: 'تاريخ النهاية',
+                      readOnly: false,
+                      onDateSelected: (selectedDate) {
+                        if (selectedDate != null) {
+                          final formattedDate = formatDate(selectedDate);
+                          endDateController.text = formattedDate;
+                        }
+                      },
                     ),
                   ),
                 ],
-              ),
+              )
+
+
             ),
             // عرض الجدول مع بيانات الحضور بشكل flex ومتجاوب مع الاتجاهين
             Expanded(
@@ -273,7 +263,7 @@ class _AttendanceTablePageState extends State<AttendanceTablePage> {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('حدث خطأ: ${snapshot.error}'));
                   } else {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CustomLoadingIndicator());
                   }
                 },
               ),
@@ -283,4 +273,12 @@ class _AttendanceTablePageState extends State<AttendanceTablePage> {
       ),
     );
   }
+  // دالة لتنسيق التاريخ إلى 'yyyy-MM-dd'
+  String formatDate(DateTime date) {
+    final String year = date.year.toString();
+    final String month = date.month.toString().padLeft(2, '0');
+    final String day = date.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
 }

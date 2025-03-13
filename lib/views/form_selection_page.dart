@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -33,41 +34,44 @@ class FormSelectionPage extends StatelessWidget {
                 SectionHeader(title: 'حدد نوع النموذج المطلوب'),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Bank_Account.png',
-                                mainText: 'نموذج فتح حساب'),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Diploma.png',
-                                mainText: 'نموذج إفادة'),
-                          ),
-                        ],
-                      ),
-                      Gap(15),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Passport.png',
-                                mainText: 'نموذج جواز السفر'),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: ImageTextCard(
-                                image: 'assets/images/Finance_Document.png',
-                                mainText: 'شهادة مرتب'),
-                          ),
-                        ],
-                      ),
-                      Gap(20),
-                    ],
+                  child: FadeInUp(
+                    duration: Duration(seconds: 1),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/Bank_Account.png',
+                                  mainText: 'نموذج فتح حساب'),
+                            ),
+                            Gap(15),
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/Diploma.png',
+                                  mainText: 'نموذج إفادة'),
+                            ),
+                          ],
+                        ),
+                        Gap(15),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/Passport.png',
+                                  mainText: 'نموذج جواز السفر'),
+                            ),
+                            Gap(15),
+                            Expanded(
+                              child: ImageTextCard(
+                                  image: 'assets/images/Finance_Document.png',
+                                  mainText: 'شهادة مرتب'),
+                            ),
+                          ],
+                        ),
+                        Gap(20),
+                      ],
+                    ),
                   ),
                 ),
               ],

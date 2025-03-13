@@ -274,7 +274,7 @@ class _HomePageState extends State<HomePage> {
                             child: InkWell(
                               onTap: () {
                                 AutoRouter.of(context).push(
-                                    AttendanceTableRoute(employeeID: 103));
+                                    AttendanceTableRoute());
                               },
                               child: ImageTextCard(
                                   image:

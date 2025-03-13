@@ -42,13 +42,9 @@ abstract class $AppRouter extends _i20.RootStackRouter {
       );
     },
     AttendanceTableRoute.name: (routeData) {
-      final args = routeData.argsAs<AttendanceTableRouteArgs>();
       return _i20.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: _i2.AttendanceTablePage(
-          key: args.key,
-          employeeID: args.employeeID,
-        ),
+        child: const _i2.AttendanceTablePage(),
       );
     },
     BottomNavigationBarEmployees.name: (routeData) {
@@ -187,41 +183,16 @@ class AnnualLeaveRequest extends _i20.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i2.AttendanceTablePage]
-class AttendanceTableRoute
-    extends _i20.PageRouteInfo<AttendanceTableRouteArgs> {
-  AttendanceTableRoute({
-    _i21.Key? key,
-    required int employeeID,
-    List<_i20.PageRouteInfo>? children,
-  }) : super(
+class AttendanceTableRoute extends _i20.PageRouteInfo<void> {
+  const AttendanceTableRoute({List<_i20.PageRouteInfo>? children})
+      : super(
           AttendanceTableRoute.name,
-          args: AttendanceTableRouteArgs(
-            key: key,
-            employeeID: employeeID,
-          ),
           initialChildren: children,
         );
 
   static const String name = 'AttendanceTableRoute';
 
-  static const _i20.PageInfo<AttendanceTableRouteArgs> page =
-      _i20.PageInfo<AttendanceTableRouteArgs>(name);
-}
-
-class AttendanceTableRouteArgs {
-  const AttendanceTableRouteArgs({
-    this.key,
-    required this.employeeID,
-  });
-
-  final _i21.Key? key;
-
-  final int employeeID;
-
-  @override
-  String toString() {
-    return 'AttendanceTableRouteArgs{key: $key, employeeID: $employeeID}';
-  }
+  static const _i20.PageInfo<void> page = _i20.PageInfo<void>(name);
 }
 
 /// generated route for

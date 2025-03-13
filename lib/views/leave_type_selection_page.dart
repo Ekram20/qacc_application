@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -30,124 +31,127 @@ class LeaveTypeSelectionPage extends StatelessWidget {
         body: Directionality(
           textDirection: TextDirection.rtl,
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Gap(20),
-                SectionHeader(title: 'حدد نوع الإجازة'),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                context.router.push(AnnualLeaveRequest());
-                              },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Google_Calendar.png',
-                                  mainText: 'إجازة سنوية'),
+            child:FadeInUp(
+                duration: Duration(seconds: 1),
+                child: Column(
+                children: [
+                  Gap(20),
+                  SectionHeader(title: 'حدد نوع الإجازة'),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  context.router.push(AnnualLeaveRequest());
+                                },
+                                child: ImageTextCard(
+                                    image: 'assets/images/Google_Calendar.png',
+                                    mainText: 'إجازة سنوية'),
+                              ),
                             ),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                context.router.push(SickLeaveRequest());
-                                
-                              },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Fever.png',
-                                  mainText: 'إجازة مرضية'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Gap(15),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                context.router.push(EmergencyLeaveRequest());
+                            Gap(15),
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  context.router.push(SickLeaveRequest());
 
-                              },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Siren.png',
-                                  mainText: 'إجازة طارئة'),
+                                },
+                                child: ImageTextCard(
+                                    image: 'assets/images/Fever.png',
+                                    mainText: 'إجازة مرضية'),
+                              ),
                             ),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                context.router.push(MaternityLeaveRequest());
-                              },
-                              child: ImageTextCard(
-                                  image: 'assets/images/UNICEF.png',
-                                  mainText: 'إجازة أمومة'),
+                          ],
+                        ),
+                        Gap(15),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  context.router.push(EmergencyLeaveRequest());
+
+                                },
+                                child: ImageTextCard(
+                                    image: 'assets/images/Siren.png',
+                                    mainText: 'إجازة طارئة'),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Gap(15),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                context.router.push(MarriageLeaveRoute());
-                              },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Diamond_Ring.png',
-                                  mainText: 'إجازة الزواج'),
+                            Gap(15),
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  context.router.push(MaternityLeaveRequest());
+                                },
+                                child: ImageTextCard(
+                                    image: 'assets/images/UNICEF.png',
+                                    mainText: 'إجازة أمومة'),
+                              ),
                             ),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                context.router.push(DeathLeave());
-                              },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Paper.png',
-                                  mainText: 'إجازة الوفاة'),
+                          ],
+                        ),
+                        Gap(15),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  context.router.push(MarriageLeaveRoute());
+                                },
+                                child: ImageTextCard(
+                                    image: 'assets/images/Diamond_Ring.png',
+                                    mainText: 'إجازة الزواج'),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Gap(15),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                context.router.push(HajjLeave());
-                              },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Kaaba.png',
-                                  mainText: 'إجازة الحج'),
+                            Gap(15),
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  context.router.push(DeathLeave());
+                                },
+                                child: ImageTextCard(
+                                    image: 'assets/images/Paper.png',
+                                    mainText: 'إجازة الوفاة'),
+                              ),
                             ),
-                          ),
-                          Gap(15),
-                          Expanded(
-                            child: InkWell(
-                              onTap: (){
-                                context.router.push(ExamsLeave());
-                              },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Grades.png',
-                                  mainText: 'إجازة الإمتحانات'),
+                          ],
+                        ),
+                        Gap(15),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  context.router.push(HajjLeave());
+                                },
+                                child: ImageTextCard(
+                                    image: 'assets/images/Kaaba.png',
+                                    mainText: 'إجازة الحج'),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Gap(20),
-                    ],
+                            Gap(15),
+                            Expanded(
+                              child: InkWell(
+                                onTap: (){
+                                  context.router.push(ExamsLeave());
+                                },
+                                child: ImageTextCard(
+                                    image: 'assets/images/Grades.png',
+                                    mainText: 'إجازة الإمتحانات'),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gap(20),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ));
