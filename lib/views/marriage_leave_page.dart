@@ -196,7 +196,7 @@ class _MarriageLeavePageState extends State<MarriageLeavePage> {
 
   // دالة لإرسال البيانات إلى API
   void _sendRequestToAPI(Map<String, dynamic> requestData) async {
-    final url = "http://www.hr.qacc.ly/php/submit_marriage_leave.php";
+    final url = "https://hr.qacc.ly/php/submit_marriage_leave.php";
     setState(() => isLoading = true);
 
     try {

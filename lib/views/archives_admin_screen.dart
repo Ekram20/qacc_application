@@ -41,7 +41,7 @@ class _ArchivesAdminScreenState extends State<ArchivesAdminScreen> {
 
   Future<void> fetchMessages() async {
     try {
-      final url = Uri.parse('http://www.hr.qacc.ly/php/messages_admin_app_api.php?employee_id=$employeeId');
+      final url = Uri.parse('https://hr.qacc.ly/php/messages_admin_app_api.php?employee_id=$employeeId');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -70,7 +70,7 @@ class _ArchivesAdminScreenState extends State<ArchivesAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('المحفوظات', style: Theme.of(context).textTheme.bodySmall),
+        title: Text('بريد المدير العام', style: Theme.of(context).textTheme.bodySmall),
         centerTitle: true,
       ),
       body: Directionality(

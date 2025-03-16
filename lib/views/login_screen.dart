@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
 // التحقق من البريد الإلكتروني في قاعدة البيانات واسترجاع بيانات الموظف
 Future<Map<String, dynamic>?> checkEmployeeEmail(String email) async {
   final response = await http.post(
-    Uri.parse('http://www.hr.qacc.ly/php/check_employee_email.php'),
+    Uri.parse('https://hr.qacc.ly/php/check_employee_email.php'),
     body: {'email': email},
   );
 

@@ -41,7 +41,7 @@ class _ArchivesScreenState extends State<ArchivesScreen> {
 
   Future<void> fetchMessages() async {
     try {
-      final url = Uri.parse('http://www.hr.qacc.ly/php/messages_app_api.php?employee_id=$employeeId');
+      final url = Uri.parse('https://hr.qacc.ly/php/messages_app_api.php?employee_id=$employeeId');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
