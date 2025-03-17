@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
@@ -12,6 +13,7 @@ import 'package:qacc_application/widgets/large_button.dart';
 import 'package:qacc_application/widgets/leave_reason_field.dart';
 import 'package:qacc_application/widgets/pdf_widget.dart';
 import 'package:qacc_application/widgets/section_header.dart';
+import '../widgets/circularProgressIndicator.dart';
 
 import '../providers/employee_provider.dart';
 
@@ -26,7 +28,7 @@ class EmergencyLeaveRequest extends StatefulWidget {
 
 class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
   final _formKey = GlobalKey<FormState>();
-
+  bool isLoading = false;
   File? _file;
   String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
 
@@ -152,9 +154,12 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
                         },
                         validator: (value) => null, // الملف اختياري الآن
                       ),
-
                       Gap(10.0),
-                      LargeButton(
+                      isLoading
+                          ? CustomLoadingIndicator(
+
+                      )
+                          : LargeButton(
                         buttonText: 'إرسال الطلب',
                         color: AppColors.primaryColor,
                         onPressed: _submitForm,
@@ -171,39 +176,77 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
     );
   }
 
-  void _submitForm() {
-
-    // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // إضافة البيانات إلى الكائن requestData
-      Map<String, dynamic> requestData = {
-        'daysController': daysController.text,
-        'leaveReasonController':
-            leaveReasonController.text, // إضافة سبب الإجازة
-        'requestDateController': requestDateController.text,
-        'leaveStartController': leaveStartController.text,
-        'leaveEndController': leaveEndController.text,
-        'resumptionController': resumptionController.text,
-        'file': _file,
-      };
+      var uri = Uri.parse("http://www.hr.qacc.ly/php/submit_Emergency_leave.php");
 
-      // عرض رسالة نجاح بعد إرسال البيانات
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('البيانات: $requestData'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.green,
-        ),
-      );
-      // إعادة تعيين الحقول بعد الإرسال
-      setState(() {
-        daysController.clear();
-        leaveReasonController.clear();
-        leaveStartController.clear();
-        leaveEndController.clear();
-        resumptionController.clear();
-        _file = null; // إعادة تعيين الملف
-      });
+      setState(() => isLoading = true);
+
+      var request = http.MultipartRequest("POST", uri);
+
+      // إضافة البيانات كحقول نصية
+      request.fields['employee_id'] = employeeId.toString();
+      request.fields['leave_type'] = "اجازة طارئة";
+      request.fields['days'] = daysController.text;
+      request.fields['leave_reason'] = leaveReasonController.text;
+      request.fields['request_date'] = requestDateController.text;
+      request.fields['start_date'] = leaveStartController.text;
+      request.fields['end_date'] = leaveEndController.text;
+      request.fields['resume_date'] = resumptionController.text;
+
+      // إضافة الملف إذا كان موجودًا
+      if (_file != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'emergency_leave_file',
+          _file!.path,
+        ));
+      }
+
+      try {
+        var response = await request.send();
+        var responseBody = await response.stream.bytesToString();
+        var jsonResponse = jsonDecode(responseBody);
+
+        if (response.statusCode == 200 && jsonResponse['status'] == "success") {
+
+          // إعادة تعيين الحقول بعد الإرسال الناجح
+          setState(() {
+            daysController.clear();
+            leaveReasonController.clear();
+            leaveStartController.clear();
+            leaveEndController.clear();
+            resumptionController.clear();
+            _file = null;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('تم إرسال الإجازة بنجاح'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          print("خطأ: ${jsonResponse['message']}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('خطأ في الإرسال: ${jsonResponse['message']}'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('حدث خطأ: $e'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() => isLoading = false); // تغيير isLoading بعد الانتهاء من الإرسال
+      }
     }
   }
 
@@ -221,4 +264,5 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
       });
     }
   }
+
 }
