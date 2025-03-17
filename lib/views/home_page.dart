@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchAdsImages() async {
-    final String apiUrl = 'http://www.hr.qacc.ly/php/ads_api.php';
+    final String apiUrl = 'https://hr.qacc.ly/php/ads_api.php';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -105,7 +105,9 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           actions: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                context.router.push(LeaveManagement());
+              },
               icon: Icon(
                 Icons.fact_check,
                 color: AppColors.white,
@@ -273,8 +275,8 @@ class _HomePageState extends State<HomePage> {
                           Expanded(
                             child: InkWell(
                               onTap: () {
-                                AutoRouter.of(context).push(
-                                    AttendanceTableRoute());
+                                AutoRouter.of(context)
+                                    .push(AttendanceTableRoute());
                               },
                               child: ImageTextCard(
                                   image:

@@ -199,7 +199,7 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
 
   // دالة لإرسال البيانات إلى API
   void _sendRequestToAPI(Map<String, dynamic> requestData) async {
-    final url = "http://www.hr.qacc.ly/php/submit_sick_leave.php";
+    final url = "https://hr.qacc.ly/php/submit_sick_leave.php";
     setState(() => isLoading = true);
 
     try {

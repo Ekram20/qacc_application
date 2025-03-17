@@ -3,8 +3,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MessageBubble extends StatelessWidget {
   final Map<String, dynamic> message;
+  final String sender;
 
-  const MessageBubble({required this.message, Key? key}) : super(key: key);
+  const MessageBubble({required this.message, required this.sender, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +32,8 @@ class MessageBubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'من: المحفوظات',
+             Text(
+                'من: $sender',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(height: 8),

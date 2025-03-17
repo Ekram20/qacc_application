@@ -204,7 +204,7 @@ class _ExamsLeaveState extends State<ExamsLeave> {
 
     // دالة لإرسال البيانات إلى API
   void _sendRequestToAPI(Map<String, dynamic> requestData) async {
-    final url = "http://www.hr.qacc.ly/php/submit_exams_leave.php";
+    final url = "https://hr.qacc.ly/php/submit_exams_leave.php";
     setState(() => isLoading = true);
 
     try {

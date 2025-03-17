@@ -242,7 +242,7 @@ class _MaternityLeaveRequestState extends State<MaternityLeaveRequest> {
 
   // دالة لإرسال البيانات إلى API
   void _sendRequestToAPI(Map<String, dynamic> requestData) async {
-    final url = "http://www.hr.qacc.ly/php/submit_maternity_leave.php";
+    final url = "https://hr.qacc.ly/php/submit_maternity_leave.php";
     setState(() => isLoading = true);
 
     try {
