@@ -178,6 +178,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                             int allowedDays = int.tryParse(_leaveController.text) ?? 0;
 
                             if (enteredDays > allowedDays) {
+
                               // إظهار الـ SnackBar مباشرة هنا
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -186,8 +187,11 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                                   duration: Duration(seconds: 3), // مدة ظهور الـ SnackBar
                                 ),
                               );
+                              daysController.clear();
                             }
+
                           });
+                          setState(() {});
                         },
                       ),
 
