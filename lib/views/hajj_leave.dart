@@ -1,8 +1,13 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:provider/provider.dart';
+import 'package:qacc_application/providers/employee_provider.dart';
+import 'package:qacc_application/widgets/circularProgressIndicator.dart';
 import '../models/app_colors.dart';
 import '../widgets/date_form_field_widget.dart';
 import '../widgets/large_button.dart';
@@ -20,6 +25,9 @@ class HajjLeave extends StatefulWidget {
 }
 
 class _HajjLeaveState extends State<HajjLeave> {
+      // تعريف متغير للتحكم في عدد الأيام
+  TextEditingController daysController = TextEditingController(text: (20).toString());
+
   final TextEditingController requestDateController = TextEditingController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
@@ -32,6 +40,9 @@ class _HajjLeaveState extends State<HajjLeave> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedOption = "نعم";
   bool isSubmitted = false;
+  late int employeeId;
+  bool isLoading = false;
+
   File? _file;
 
   File? attachedHajjFile;
@@ -49,6 +60,14 @@ class _HajjLeaveState extends State<HajjLeave> {
         _file = File(result.files.single.path!);
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    employeeId = Provider.of<EmployeeProvider>(context, listen: false)
+        .employeeData!["id"];
   }
 
   @override
@@ -106,23 +125,23 @@ class _HajjLeaveState extends State<HajjLeave> {
                   onDateSelected: (date) {
                     setState(() {
                       taskDateController.text =
-                      "${date.year}-${date.month}-${date.day}";
+                          "${date.year}-${date.month}-${date.day}";
                     });
                   },
                   bookNumberController: bookNumberController,
                   bookNumberValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
+                      value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
                   taskController: taskController,
                   taskValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال المهمة' : null,
+                      value!.isEmpty ? 'يرجى إدخال المهمة' : null,
                   departmentController: departmentController,
                   departmentValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
+                      value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
                   pdfValidator: (value) => _file == null && isSubmitted
                       ? 'يرجى إرفاق ملف PDF'
                       : null,
                   dateValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال تاريخ التكليف' : null,
+                      value!.isEmpty ? 'يرجى إدخال تاريخ التكليف' : null,
                 ),
                 Container(
                   padding: const EdgeInsets.all(15.0),
@@ -146,17 +165,20 @@ class _HajjLeaveState extends State<HajjLeave> {
                           });
                         },
                         validator: (value) =>
-                        attachedHajjFile == null && isSubmittedStateNo
-                            ? 'يرجى إرفاق صورة من تأشيرة جواز السفر '
-                            : null,
+                            attachedHajjFile == null && isSubmittedStateNo
+                                ? 'يرجى إرفاق صورة من تأشيرة جواز السفر '
+                                : null,
                       ),
-                      const Gap(20),
-                      LargeButton(
-                        buttonText: 'إرسال الطلب',
-                        color: AppColors.primaryColor,
-                        onPressed: _submitForm,
-                      ),
-                      const Gap(20),
+                      Gap(10.0),
+                      isLoading
+                          ? CustomLoadingIndicator()
+                          : LargeButton(
+                              buttonText: 'إرسال الطلب',
+                              color: AppColors.primaryColor,
+                              onPressed: _submitForm,
+                            ),
+                      Gap(20.0),
+
                     ],
                   ),
                 ),
@@ -167,6 +189,84 @@ class _HajjLeaveState extends State<HajjLeave> {
       ),
     );
   }
+
+
+  // دالة لإرسال البيانات إلى API
+  void _sendRequestToAPI(Map<String, dynamic> requestData) async {
+    final url = "https://hr.qacc.ly/php/submit_hajj_leave.php";
+    setState(() => isLoading = true);
+
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+      request.fields['employeeID'] = requestData['employee_id'];
+      request.fields['leave_type'] = requestData['leave_type'];
+      request.fields['isTasked'] = requestData['isTasked'];
+      request.fields['days'] = requestData['days'];
+      request.fields['request_date'] = requestData['request_date'];
+      request.fields['start_date'] = requestData['start_date'];
+      request.fields['end_date'] = requestData['end_date'];
+      request.fields['resume_date'] = requestData['resume_date'];
+
+      // أضف حقول التكليف فقط إذا كان الخيار "نعم"
+      if (requestData['isTasked'] == "نعم") {
+        request.fields['task_date'] = requestData['task_date'];
+        request.fields['book_number'] = requestData['book_number'];
+        request.fields['task'] = requestData['task'];
+        request.fields['department'] = requestData['department'];
+      }
+
+      if (_file != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'pdf_file',
+          _file!.path,
+        ));
+      }
+      if (attachedHajjFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'hajj_file',
+          attachedHajjFile!.path,
+        ));
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = json.decode(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              jsonResponse['message'],
+              textAlign: TextAlign.right,
+            ),
+            duration: Duration(seconds: 2),
+            backgroundColor:
+                jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
+          ),
+        );
+        _resetFields();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل في إرسال الطلب'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('حدث خطأ: $e'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
 
   void _submitForm() {
     setState(() {
@@ -182,83 +282,55 @@ class _HajjLeaveState extends State<HajjLeave> {
       if (_formKey.currentState!.validate()) {
         // تحقق إضافي لضمان إرفاق الملف
         if (_file == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("يرجى إرفاق الملف عند اختيار 'نعم'."),
-              backgroundColor: Colors.red,
-            ),
-          );
           return;
         }
 
         if (attachedHajjFile == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("يرجى إرفاق صورة من تأشيرة جواز السفر."),
-              backgroundColor: Colors.red,
-            ),
-          );
           return;
         }
 
         // إعداد البيانات للإرسال
         final requestData = {
-          '_selectedOption': _selectedOption,
-          'taskDate': taskDateController.text,
-          '_file': _file,
-          'bookNumber': bookNumberController.text,
+          'employee_id': employeeId.toString(),
+          'isTasked': _selectedOption.toString(),
+          'leave_type': "اجازة الحج",
+          'task_date': taskDateController.text,
+          'decision_file': _file,
+          'book_number': bookNumberController.text,
           'task': taskController.text,
           'department': departmentController.text,
-          'requestDate': requestDateController.text,
-          'startDate': startDateController.text,
-          'endDate': endDateController.text,
-          'resumeDate': resumeDateController.text,
+          'days': daysController.text,
+          'request_date': requestDateController.text,
+          'start_date': startDateController.text,
+          'end_date': endDateController.text,
+          'resume_date': resumeDateController.text,
+          'attachedHajjFile': attachedHajjFile,
         };
 
-        // عرض رسالة نجاح
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('تم إرسال البيانات بنجاح: $requestData'),
-            duration: const Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields(); // إعادة تعيين الحقول
+        _sendRequestToAPI(requestData);
       }
     } else if (_selectedOption == "لا") {
       // التحقق من الحقول عند اختيار "لا"
       if (_formKey.currentState!.validate()) {
         if (attachedHajjFile == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("يرجى إرفاق صورة من تأشيرة جواز السفر"),
-              backgroundColor: Colors.red,
-            ),
-          );
           return;
         }
 
         // إعداد البيانات للإرسال
         final requestData = {
-          'requestDate': requestDateController.text,
-          'startDate': startDateController.text,
-          'endDate': endDateController.text,
-          'resumeDate': resumeDateController.text,
-          'taskDate': taskDateController.text,
-          'bookNumber': bookNumberController.text,
-          'task': taskController.text,
-          'department': departmentController.text,
-          'fileAttached': _file != null,
+          'employee_id': employeeId.toString(),
+          'isTasked': _selectedOption.toString(),
+          'leave_type': "اجازة الحج",
+          'task_date': taskDateController.text,
+          'days': daysController.text,
+          'request_date': requestDateController.text,
+          'start_date': startDateController.text,
+          'end_date': endDateController.text,
+          'resume_date': resumeDateController.text,
+          'attachedHajjFile': attachedHajjFile,
         };
 
-        // عرض رسالة نجاح
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('تم إرسال البيانات بنجاح: $requestData'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields(); // إعادة تعيين الحقول
+        _sendRequestToAPI(requestData);
       }
     }
   }
@@ -296,5 +368,4 @@ class _HajjLeaveState extends State<HajjLeave> {
       });
     }
   }
-
 }
