@@ -1,16 +1,20 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:auto_route/auto_route.dart';
 import '../models/app_colors.dart';
+import '../providers/employee_provider.dart';
+import '../widgets/circularProgressIndicator.dart';
 import '../widgets/date_form_field_widget.dart';
 import '../widgets/large_button.dart';
 import '../widgets/note_box.dart';
 import '../widgets/pdf_widget.dart';
 import '../widgets/section_header.dart';
 import '../widgets/task_check_form.dart';
-
+import 'package:provider/provider.dart';
 @RoutePage()
 class DeathLeave extends StatefulWidget {
   const DeathLeave({super.key});
@@ -20,10 +24,11 @@ class DeathLeave extends StatefulWidget {
 }
 
 class _DeathLeaveState extends State<DeathLeave> {
+  TextEditingController daysController = TextEditingController(text: (130).toString());
   final TextEditingController requestDateController = TextEditingController();
-  final TextEditingController startDateController = TextEditingController();
-  final TextEditingController endDateController = TextEditingController();
-  final TextEditingController resumeDateController = TextEditingController();
+  final TextEditingController leaveStartController = TextEditingController();
+  final TextEditingController leaveEndController = TextEditingController();
+  final TextEditingController resumptionController = TextEditingController();
   final TextEditingController taskDateController = TextEditingController();
   final TextEditingController bookNumberController = TextEditingController();
   final TextEditingController taskController = TextEditingController();
@@ -37,7 +42,16 @@ class _DeathLeaveState extends State<DeathLeave> {
   File? attachedDeathFile;
   String? _attachedDeathFileName;
   bool isSubmittedStateNo = false;
+  late int employeeId ;
+  bool isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+
+    employeeId = Provider.of<EmployeeProvider>(context, listen: false)
+        .employeeData!["id"];
+  }
   /// دالة فتح منتقي الملفات
   @override
   Widget build(BuildContext context) {
@@ -119,9 +133,9 @@ class _DeathLeaveState extends State<DeathLeave> {
                       DateFormFieldWidget(
                         days: 130,
                         requestDateController: requestDateController,
-                        startDateController: startDateController,
-                        endDateController: endDateController,
-                        resumeDateController: resumeDateController,
+                        startDateController: leaveStartController,
+                        endDateController: leaveEndController,
+                        resumeDateController: resumptionController,
                       ),
                       Gap(15),
                       PdfWidget(
@@ -138,13 +152,17 @@ class _DeathLeaveState extends State<DeathLeave> {
                             ? 'يرجى إرفاق صورة من شهادة الوفاة او اذن الدفن '
                             : null,
                       ),
-                      const Gap(20),
-                      LargeButton(
+                      Gap(10.0),
+                      isLoading
+                          ? CustomLoadingIndicator(
+
+                      )
+                          : LargeButton(
                         buttonText: 'إرسال الطلب',
-                        onPressed: _submitForm,
                         color: AppColors.primaryColor,
+                        onPressed: _submitForm,
                       ),
-                      const Gap(20),
+                      Gap(20.0),
                     ],
                   ),
                 ),
@@ -154,6 +172,144 @@ class _DeathLeaveState extends State<DeathLeave> {
         ),
       ),
     );
+  }
+
+
+  // دالة لإرسال البيانات إلى API
+  void _sendRequestToAPI(Map<String, dynamic> requestData) async {
+    final url = "https://hr.qacc.ly/php/submit_death_leave.php";
+    setState(() => isLoading = true);
+
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+      request.fields['employeeID'] = requestData['employee_id'];
+      request.fields['leave_type'] = requestData['leave_type'];
+      request.fields['isTasked'] = requestData['isTasked'];
+      request.fields['days'] = requestData['days'];
+      request.fields['request_date'] = requestData['request_date'];
+      request.fields['start_date'] = requestData['start_date'];
+      request.fields['end_date'] = requestData['end_date'];
+      request.fields['resume_date'] = requestData['resume_date'];
+
+      // أضف حقول التكليف فقط إذا كان الخيار "نعم"
+      if (requestData['isTasked'] == "نعم") {
+        request.fields['task_date'] = requestData['task_date'];
+        request.fields['book_number'] = requestData['book_number'];
+        request.fields['task'] = requestData['task'];
+        request.fields['department'] = requestData['department'];
+      }
+
+      if (_file != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'pdf_file',
+          _file!.path,
+        ));
+      }
+      if (attachedDeathFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'medical_certificate',
+          attachedDeathFile!.path,
+        ));
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = json.decode(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(jsonResponse['message'],textAlign: TextAlign.right,),
+            duration: Duration(seconds: 2),
+            backgroundColor: jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
+          ),
+        );
+        _resetFields();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل في إرسال الطلب'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('حدث خطأ: $e'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+
+
+  void _submitForm() {
+    setState(() {
+      isSubmittedStateNo = true; // تعيين حالة الإرسال إلى true
+    });
+
+    if (_selectedOption == "نعم") {
+      setState(() {
+        isSubmitted = true; // تعيين حالة الإرسال إلى true
+      });
+      // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
+      if (_formKey.currentState!.validate()) {
+        // تحقق إضافي لضمان أن الملف موجود عند اختيار "نعم"
+        if (_selectedOption == "نعم" && _file == null) {
+          return; // إيقاف الإرسال إذا لم يتم اختيار ملف
+        }
+        if (attachedDeathFile == null) {
+          return; // إيقاف الإرسال إذا كان الملف الطبي فارغًا
+        }
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          'employee_id': employeeId.toString(), // إضافة employee_id لأنه مطلوب
+          'leave_type': "اجازة وفاة",
+          'isTasked': _selectedOption.toString(), // مطابق لـ API
+          'task_date': taskDateController.text, // مطابق لـ API
+          'book_number': bookNumberController.text, // مطابق لـ API
+          'task': taskController.text, // مطابق لـ API
+          'department': departmentController.text, // مطابق لـ API
+          'days': daysController.text, // مطابق لـ API
+          'request_date': requestDateController.text, // مطابق لـ API
+          'start_date': leaveStartController.text, // مطابق لـ API
+          'end_date': leaveEndController.text, // مطابق لـ API
+          'resume_date': resumptionController.text, // مطابق لـ API
+          'decision_file': _file, // مطابق لـ API
+          'medical_certificate': attachedDeathFile, // مطابق لـ API
+        };
+
+        _sendRequestToAPI(requestData);
+      }
+    } else if (_selectedOption == "لا") {
+      // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
+      if (_formKey.currentState!.validate()) {
+        if (attachedDeathFile == null) {
+          return; // إيقاف الإرسال إذا كان الملف الطبي فارغًا
+        }
+        // إضافة البيانات إلى الكائن requestData
+        Map<String, dynamic> requestData = {
+          'employee_id': employeeId.toString(), // إضافة employee_id
+          'leave_type': "اجازة وفاة",
+          'isTasked': _selectedOption.toString(), // مطابق لـ API
+          'days': daysController.text, // مطابق لـ API
+          'request_date': requestDateController.text, // مطابق لـ API
+          'start_date': leaveStartController.text, // مطابق لـ API
+          'end_date': leaveEndController.text, // مطابق لـ API
+          'resume_date': resumptionController.text, // مطابق لـ API
+          'medical_certificate': attachedDeathFile, // مطابق لـ API
+        };
+
+        _sendRequestToAPI(requestData);
+
+      }
+    }
   }
 
   Future<void> _openFilePicker() async {
@@ -168,107 +324,13 @@ class _DeathLeaveState extends State<DeathLeave> {
     }
   }
 
-  void _submitForm() {
-    setState(() {
-      isSubmittedStateNo = true; // تعيين حالة الإرسال إلى true
-    });
-
-    if (_selectedOption == "نعم") {
-      setState(() {
-        isSubmitted = true; // تعيين حالة الإرسال إلى true
-      });
-
-      // التحقق من الحقول عند اختيار "نعم"
-      if (_formKey.currentState!.validate()) {
-        // تحقق إضافي لضمان أن الملف موجود
-        if (_file == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("يرجى إرفاق الملف عند اختيار 'نعم'."),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        if (attachedDeathFile == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("يرجى إرفاق شهادة الوفاة أو إذن الدفن."),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        // إعداد البيانات للإرسال
-        final requestData = {
-          '_selectedOption': _selectedOption,
-          'taskDate': taskDateController.text,
-          '_file': _file,
-          'bookNumber': bookNumberController.text,
-          'task': taskController.text,
-          'department': departmentController.text,
-          'requestDate': requestDateController.text,
-          'startDate': startDateController.text,
-          'endDate': endDateController.text,
-          'resumeDate': resumeDateController.text,
-        };
-
-        // عرض رسالة نجاح
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('تم إرسال البيانات بنجاح: $requestData'),
-            duration: const Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields(); // إعادة تعيين الحقول
-      }
-    } else if (_selectedOption == "لا") {
-      // التحقق من الحقول عند اختيار "لا"
-      if (_formKey.currentState!.validate()) {
-        if (attachedDeathFile == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("يرجى إرفاق شهادة الوفاة أو إذن الدفن ."),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        // إعداد البيانات للإرسال
-        final requestData = {
-          'requestDate': requestDateController.text,
-          'startDate': startDateController.text,
-          'endDate': endDateController.text,
-          'resumeDate': resumeDateController.text,
-          'taskDate': taskDateController.text,
-          'bookNumber': bookNumberController.text,
-          'task': taskController.text,
-          'department': departmentController.text,
-          'fileAttached': _file != null,
-        };
-
-        // عرض رسالة نجاح
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('تم إرسال البيانات بنجاح: $requestData'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _resetFields(); // إعادة تعيين الحقول
-      }
-    }
-  }
 
 // دالة لإعادة تعيين الحقول
   void _resetFields() {
     setState(() {
-      startDateController.clear();
-      endDateController.clear();
-      resumeDateController.clear();
+      leaveStartController.clear();
+      leaveEndController.clear();
+      resumptionController.clear();
       taskDateController.clear();
       bookNumberController.clear();
       taskController.clear();

@@ -62,7 +62,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   TextEditingController _leaveController = TextEditingController();
 
   late int employeeId ;
-  bool _isLoading = true;
+
 
   @override
   void initState() {
