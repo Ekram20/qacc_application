@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/providers/employee_provider.dart';
+import 'package:qacc_application/widgets/circularProgressIndicator.dart';
 import 'package:qacc_application/widgets/custom_text_field.dart';
 import 'package:qacc_application/widgets/date_form_field_widget.dart';
 import 'package:qacc_application/widgets/large_button.dart';
@@ -179,7 +180,7 @@ class _SickLeaveRequestState extends State<SickLeaveRequest> {
 
                       Gap(10.0),
                       isLoading
-                          ? CircularProgressIndicator()
+                          ? CustomLoadingIndicator()
                           : LargeButton(
                               buttonText: 'إرسال الطلب',
                               color: AppColors.primaryColor,

@@ -152,8 +152,20 @@ class _LeaveTypeSelectionPageState extends State<LeaveTypeSelectionPage> {
                             Gap(15),
                             Expanded(
                               child: InkWell(
-                                onTap: () {
-                                  context.router.push(DeathLeave());
+                                onTap: () async {
+                                  bool hasTakenLeave = await checkLeaveTaken(
+                                      context, "اجازة الوفاة");
+                                  if (!hasTakenLeave) {
+                                    context.router.push(DeathLeave());
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                        "لا يمكنك التقديم لهذه الإجازة مرة أخرى",
+                                        textAlign: TextAlign.right,
+                                      )),
+                                    );
+                                  }
                                 },
                                 child: ImageTextCard(
                                     image: 'assets/images/Paper.png',

@@ -3,12 +3,22 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:qacc_application/widgets/image_text_card.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 
 @RoutePage()
-class LeaveManagement extends StatelessWidget {
-  const LeaveManagement({super.key});
+class RequestTypeSelectionWidget extends StatelessWidget {
+  final VoidCallback? onLeavesTap;
+  final VoidCallback? onItemsTap;
+  final VoidCallback? onFormsTap;
+
+  const RequestTypeSelectionWidget({
+    super.key,
+    this.onLeavesTap,
+    this.onItemsTap,
+    this.onFormsTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +43,7 @@ class LeaveManagement extends StatelessWidget {
               child: Column(
                 children: [
                   Gap(20),
-                  SectionHeader(title: 'حدد نوع الإجراء المطلوب'),
+                  SectionHeader(title: 'حدد نوع الطلب (اجازة - صنف - نموذج)'),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -44,9 +54,13 @@ class LeaveManagement extends StatelessWidget {
                             Gap(15),
                             Expanded(
                               flex: 2,
-                              child: ImageTextCard(
-                                  image: 'assets/images/Map_Editing.png',
-                                  mainText: 'مراجعة طلباتي'),
+                              child: InkWell(
+                                onTap: onLeavesTap,
+                                child: ImageTextCard(
+                                  image: 'assets/images/Google_Calendar.png',
+                                  mainText: 'الإجازات',
+                                ),
+                              ),
                             ),
                             Gap(15),
                             Expanded(child: Container()),
@@ -59,15 +73,36 @@ class LeaveManagement extends StatelessWidget {
                             Gap(15),
                             Expanded(
                               flex: 2,
-                              child: ImageTextCard(
-                                  image: 'assets/images/Services.png',
-                                  mainText: 'إدارة الطلبات'),
+                              child: InkWell(
+                                onTap: onItemsTap,
+                                child: ImageTextCard(
+                                    image: 'assets/images/Create_Order.png',
+                                    mainText: 'الأصناف'),
+                              ),
                             ),
                             Gap(15),
                             Expanded(child: Container()),
                           ],
                         ),
-
+                        Gap(15),
+                        Row(
+                          children: [
+                            Expanded(child: Container()),
+                            Gap(15),
+                            Expanded(
+                              flex: 2,
+                              child: InkWell(
+                                onTap: onFormsTap,
+                                child: ImageTextCard(
+                                  image: 'assets/images/Signing_A_Document.png',
+                                  mainText: 'النماذج',
+                                ),
+                              ),
+                            ),
+                            Gap(15),
+                            Expanded(child: Container()),
+                          ],
+                        ),
                         Gap(20),
                       ],
                     ),

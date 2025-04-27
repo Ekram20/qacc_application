@@ -270,7 +270,7 @@ class _DeathLeaveState extends State<DeathLeave> {
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
           'employee_id': employeeId.toString(), // إضافة employee_id لأنه مطلوب
-          'leave_type': "اجازة وفاة",
+          'leave_type': "اجازة الوفاة",
           'isTasked': _selectedOption.toString(), // مطابق لـ API
           'task_date': taskDateController.text, // مطابق لـ API
           'book_number': bookNumberController.text, // مطابق لـ API
@@ -296,7 +296,7 @@ class _DeathLeaveState extends State<DeathLeave> {
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
           'employee_id': employeeId.toString(), // إضافة employee_id
-          'leave_type': "اجازة وفاة",
+          'leave_type': "اجازة الوفاة",
           'isTasked': _selectedOption.toString(), // مطابق لـ API
           'days': daysController.text, // مطابق لـ API
           'request_date': requestDateController.text, // مطابق لـ API

@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -49,52 +50,77 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
 // التحقق من البريد الإلكتروني في قاعدة البيانات واسترجاع بيانات الموظف
-Future<Map<String, dynamic>?> checkEmployeeEmail(String email) async {
-  final response = await http.post(
-    Uri.parse('https://hr.qacc.ly/php/check_employee_email.php'),
-    body: {'email': email},
-  );
+  Future<Map<String, dynamic>?> checkEmployeeEmail(String email) async {
+    final response = await http.post(
+      Uri.parse('https://hr.qacc.ly/php/check_employee_email.php'),
+      body: {'email': email},
+    );
 
-  if (response.statusCode == 200) {
-    var data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
 
-    if (data['exists'] == true) {
-      return data['employee']; // إرجاع بيانات الموظف فقط
+      if (data['exists'] == true) {
+        return data['employee']; // إرجاع بيانات الموظف فقط
+      }
     }
+
+    return null; // إرجاع null إذا لم يكن الموظف موجودًا
   }
 
-  return null; // إرجاع null إذا لم يكن الموظف موجودًا
-}
+  //Code-Get-Token
+  Future<void> saveTokenToDatabase(String email) async {
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
 
+    if (fcmToken != null) {
+      final response = await http.post(
+        Uri.parse('https://hr.qacc.ly/php/save_fcm_token.php'),
+        body: {
+          'email': email,
+          'fcm_token': fcmToken,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("✅ تم حفظ FCM Token بنجاح");
+      } else {
+        print("❌ فشل في حفظ FCM Token: ${response.body}");
+      }
+    }
+  }
 
   // تنفيذ تسجيل الدخول
-void handleSignIn() async {
-  UserCredential? userCredential = await signInWithGoogle();
-  if (userCredential != null) {
-    String email = userCredential.user!.email!;
-    print("✅ تسجيل دخول ناجح: $email");
+  void handleSignIn() async {
+    UserCredential? userCredential = await signInWithGoogle();
+    if (userCredential != null) {
+      String email = userCredential.user!.email!;
+      print("✅ تسجيل دخول ناجح: $email");
 
-    Map<String, dynamic>? employeeData = await checkEmployeeEmail(email);
+      Map<String, dynamic>? employeeData = await checkEmployeeEmail(email);
 
-    if (employeeData != null) {
-      // حفظ بيانات الموظف في EmployeeProvider
-      Provider.of<EmployeeProvider>(context, listen: false)
-          .setEmployeeData(employeeData);
+      if (employeeData != null) {
+        await saveTokenToDatabase(email);
 
-      // الانتقال إلى الصفحة الرئيسية
-      context.router.replace(BottomNavigationBarEmployees());
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("ليس لديك صلاحية الدخول، يرجى مراجعة شؤون الموظفين",textAlign: TextAlign.right,),
-          backgroundColor: Colors.red,
-        ),
-      );
-      await FirebaseAuth.instance.signOut();
-      await GoogleSignIn().signOut();
+        // حفظ بيانات الموظف في EmployeeProvider
+        Provider.of<EmployeeProvider>(context, listen: false)
+            .setEmployeeData(employeeData);
+
+        // الانتقال إلى الصفحة الرئيسية
+        context.router.replace(BottomNavigationBarEmployees());
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "ليس لديك صلاحية الدخول، يرجى مراجعة شؤون الموظفين",
+              textAlign: TextAlign.right,
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        await FirebaseAuth.instance.signOut();
+        await GoogleSignIn().signOut();
+      }
     }
   }
-}
 
 /*   // تنفيذ تسجيل الدخول
   void handleSignIn() async {
