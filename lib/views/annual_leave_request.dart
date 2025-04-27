@@ -325,7 +325,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
         // إضافة البيانات إلى الكائن requestData
         Map<String, dynamic> requestData = {
           'employee_id': employeeId.toString(), // إضافة employee_id لأنه مطلوب
-          'leave_type': "اجازة سنوية ",
+          'leave_type': "اجازة سنوية",
           'isTasked': _selectedOption.toString(), // مطابق لـ API
           "task_date": taskDateController.text,
           'decision_file': _file,
