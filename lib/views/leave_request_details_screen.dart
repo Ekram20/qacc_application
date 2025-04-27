@@ -2,6 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:qacc_application/models/app_colors.dart';
+import 'package:qacc_application/views/pdf_viewer_screen.dart';
+import 'package:qacc_application/widgets/pdf_viewer_network_screen.dart';
 import 'package:qacc_application/widgets/section_header.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -132,18 +134,13 @@ Widget buildFileRow(context, String label, String? fileUrl) {
         IconButton(
           icon: Icon(Icons.open_in_new, color: Colors.blue),
           onPressed: () async {
-            final Uri fileUri = Uri.parse(fileUrl);
-            if (await canLaunchUrl(fileUri)) {
-              await launchUrl(fileUri, mode: LaunchMode.externalApplication);
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(
-                  'تعذر فتح الملف',
-                  textAlign: TextAlign.right,
-                )),
-              );
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PDFViewerNetworkScreen(fileUrl: fileUrl)
+              ),
+            );
+
           },
         ),
       ],

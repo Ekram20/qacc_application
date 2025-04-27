@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:qacc_application/widgets/pdf_viewer_network_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MessageBubble extends StatelessWidget {
   final Map<String, dynamic> message;
   final String sender;
 
-  const MessageBubble({required this.message, required this.sender, Key? key}) : super(key: key);
+  const MessageBubble({required this.message, required this.sender, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class MessageBubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-             Text(
+              Text(
                 'من: $sender',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
@@ -67,7 +69,12 @@ class MessageBubble extends StatelessWidget {
                           ),
                         );
                       } else {
-                        _launchFile(url);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PDFViewerNetworkScreen(fileUrl: url)),
+                        );
                       }
                     },
                     child: Row(
