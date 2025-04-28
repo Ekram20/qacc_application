@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:auto_route/auto_route.dart';
@@ -25,7 +26,6 @@ class EmergencyLeaveRequest extends StatefulWidget {
   State<EmergencyLeaveRequest> createState() => _EmergencyLeaveRequestState();
 }
 
-
 class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -51,8 +51,10 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
   //عدد الايام المسموح بها
   TextEditingController _leaveController = TextEditingController();
 
-  late int employeeId ;
+  late int employeeId;
   bool _isLoading = true;
+  Timer? _timer; // لتعريف المؤقت
+
   @override
   void initState() {
     super.initState();
@@ -60,10 +62,43 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
     final employeeData =
         Provider.of<EmployeeProvider>(context, listen: false).employeeData;
 
-    _leaveController.text = employeeData?["emergency_leave_balance"].toString() ?? "";
+    _leaveController.text =
+        employeeData?["emergency_leave_balance"].toString() ?? "";
     employeeId = employeeData?["id"] ?? 0;
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      getLeaveBalance();
+    });
   }
 
+  void getLeaveBalance() async {
+    final id = Provider.of<EmployeeProvider>(context, listen: false)
+        .employeeData?['id'];
+    if (id == null) return;
+
+    try {
+      final res = await http.get(
+          Uri.parse('http://www.hr.qacc.ly/php/get_employee_data.php?id=$id'));
+      final data = jsonDecode(res.body);
+      if (data['success']) {
+        // تحديث البيانات في الـ Provider
+        Provider.of<EmployeeProvider>(context, listen: false)
+            .updateEmployeeData(data['employee']);
+        setState(() {
+          _leaveController.text =
+              data['employee']['emergency_leave_balance'].toString();
+        });
+      }
+    } catch (e) {
+      print('خطأ أثناء الجلب: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // لا تنسى إيقاف المؤقت عند مغادرة الشاشة
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,24 +141,44 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
                         validator: (value) =>
                             value!.isEmpty ? 'يرجى إدخال عدد الأيام' : null,
                         onChanged: (value) {
-                          if (int.tryParse(value) != null &&
-                              int.parse(value) > 3) {
-                            daysController.clear();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('لا يمكن تجاوز 3 أيام في كل طلب'),
-                                duration: Duration(seconds: 2),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
+                          setState(() {
+                            int enteredDays = int.tryParse(value) ?? 0;
+                            int allowedDays =
+                                int.tryParse(_leaveController.text) ?? 0;
+
+                            if (enteredDays > 3) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'لا يمكن تجاوز 3 أيام في كل طلب',
+                                    textAlign: TextAlign.right,
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              daysController.clear();
+                            } else if (enteredDays > allowedDays) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'رصيد إجازتك لا يسمح بعدد الأيام المدخل',
+                                    textAlign: TextAlign.right,
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              daysController.clear();
+                            }
+                          });
                           setState(() {});
                         },
                       ),
                       Gap(16.0), // مسافة بين الحقول
                       // حقل عدد الأيام المسموح بها
                       CustomTextField(
-                        controller:_leaveController,
+                        controller: _leaveController,
                         readOnly: true,
                         keyboardType: TextInputType.text,
                         labelText: 'عدد الأيام المسموح بها',
@@ -156,14 +211,12 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
                       ),
                       Gap(10.0),
                       isLoading
-                          ? CustomLoadingIndicator(
-
-                      )
+                          ? CustomLoadingIndicator()
                           : LargeButton(
-                        buttonText: 'إرسال الطلب',
-                        color: AppColors.primaryColor,
-                        onPressed: _submitForm,
-                      ),
+                              buttonText: 'إرسال الطلب',
+                              color: AppColors.primaryColor,
+                              onPressed: _submitForm,
+                            ),
                       Gap(20.0),
                     ],
                   ),
@@ -178,7 +231,8 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      var uri = Uri.parse("http://www.hr.qacc.ly/php/submit_Emergency_leave.php");
+      var uri =
+          Uri.parse("http://www.hr.qacc.ly/php/submit_Emergency_leave.php");
 
       setState(() => isLoading = true);
 
@@ -208,7 +262,6 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
         var jsonResponse = jsonDecode(responseBody);
 
         if (response.statusCode == 200 && jsonResponse['status'] == "success") {
-
           // إعادة تعيين الحقول بعد الإرسال الناجح
           setState(() {
             daysController.clear();
@@ -221,7 +274,10 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('تم إرسال الإجازة بنجاح'),
+              content: Text(
+                'تم إرسال طلبك لمديرك المباشر',
+                textAlign: TextAlign.right,
+              ),
               duration: Duration(seconds: 2),
               backgroundColor: Colors.green,
             ),
@@ -245,7 +301,8 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
           ),
         );
       } finally {
-        setState(() => isLoading = false); // تغيير isLoading بعد الانتهاء من الإرسال
+        setState(
+            () => isLoading = false); // تغيير isLoading بعد الانتهاء من الإرسال
       }
     }
   }
@@ -264,5 +321,4 @@ class _EmergencyLeaveRequestState extends State<EmergencyLeaveRequest> {
       });
     }
   }
-
 }

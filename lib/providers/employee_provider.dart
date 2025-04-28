@@ -14,4 +14,10 @@ class EmployeeProvider extends ChangeNotifier {
     _employeeData = null;
     notifyListeners();
   }
+
+  // تحديث بيانات الموظف
+  void updateEmployeeData(Map<String, dynamic> newData) {
+    _employeeData = newData;
+    notifyListeners(); // تنبيه الواجهة للتحديث
+  }
 }

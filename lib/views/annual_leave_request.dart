@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -14,13 +15,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:qacc_application/widgets/task_check_form.dart';
 import 'package:http/http.dart' as http;
 
-
 import '../providers/employee_provider.dart';
 import '../widgets/circularProgressIndicator.dart';
 
 @RoutePage()
 class AnnualLeaveRequest extends StatefulWidget {
-
   const AnnualLeaveRequest({super.key});
 
   @override
@@ -34,7 +33,6 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   File? _file;
   bool isSubmitted = false; // لتتبع حالة الإرسال
   bool isSubmittedStateNo = false;
-
 
   String? _selectedOption = "نعم"; // القيمة المختارة
   String? _selectedFile; // المتغير لتمثيل الملف الذي تم اختياره
@@ -61,8 +59,8 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   //عدد الايام المسموح بها
   TextEditingController _leaveController = TextEditingController();
 
-  late int employeeId ;
-
+  late int employeeId;
+  Timer? _timer; // لتعريف المؤقت
 
   @override
   void initState() {
@@ -73,9 +71,39 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
 
     _leaveController.text = employeeData?["annual_leave"].toString() ?? "";
     employeeId = employeeData?["id"] ?? 0;
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      getLeaveBalance();
+    });
   }
 
+  void getLeaveBalance() async {
+    final id = Provider.of<EmployeeProvider>(context, listen: false)
+        .employeeData?['id'];
+    if (id == null) return;
 
+    try {
+      final res = await http.get(
+          Uri.parse('http://www.hr.qacc.ly/php/get_employee_data.php?id=$id'));
+      final data = jsonDecode(res.body);
+      if (data['success']) {
+        // تحديث البيانات في الـ Provider
+        Provider.of<EmployeeProvider>(context, listen: false)
+            .updateEmployeeData(data['employee']);
+        setState(() {
+          _leaveController.text = data['employee']['annual_leave'].toString();
+        });
+      }
+    } catch (e) {
+      print('خطأ أثناء الجلب: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // لا تنسى إيقاف المؤقت عند مغادرة الشاشة
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,16 +135,16 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                     context.router.push(LeaveInfoRoute(
                       leaveName: 'الإجازة السنوية :',
                       leaveDuration:
-                      'تكون الاجازة السنوية ثلاثين يوماً في السنة وخمسة واربعين يوماً لمن بلغ سن الخمسين سنة او تجاوزت مدة خدمته عشرون عاماً.',
+                          'تكون الاجازة السنوية ثلاثين يوماً في السنة وخمسة واربعين يوماً لمن بلغ سن الخمسين سنة او تجاوزت مدة خدمته عشرون عاماً.',
                       procedureStepsTitle: 'خطوات اجراء الإجازة :',
                       stepDescription:
-                      'تعبئة نموذج طلب الاجازة رقم (A2) من قبل الموظف ويقدم لرئيس المباشر',
+                          'تعبئة نموذج طلب الاجازة رقم (A2) من قبل الموظف ويقدم لرئيس المباشر',
                       stepOne:
-                      'بعد موافقة الرئيس المباشرة على طلب الاجازة يعبنه النموذج رقم (B2) من جزئيين الجزء الاول من فبل الموظف والجزء الثاني من فبل الموظف المختص بالإجازات',
+                          'بعد موافقة الرئيس المباشرة على طلب الاجازة يعبنه النموذج رقم (B2) من جزئيين الجزء الاول من فبل الموظف والجزء الثاني من فبل الموظف المختص بالإجازات',
                       stepTwo:
-                      'لا يعتبر الموظف قد تحصل على الاجازة الابعد اعتماد النموذج رقم (B2) من الرئيس المباشر والرئيس الاعلى للموظف',
+                          'لا يعتبر الموظف قد تحصل على الاجازة الابعد اعتماد النموذج رقم (B2) من الرئيس المباشر والرئيس الاعلى للموظف',
                       stepThree:
-                      'على الموظف تقدم على الإجازة فبل اسبوع من التاريخ المراد الحصول فيه على الاجازة',
+                          'على الموظف تقدم على الإجازة فبل اسبوع من التاريخ المراد الحصول فيه على الاجازة',
                     ));
                   },
                 ),
@@ -135,7 +163,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   file: _file,
                   openFilePicker: _openFilePicker,
                   dateValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال تاريخ التكليف' : null,
+                      value!.isEmpty ? 'يرجى إدخال تاريخ التكليف' : null,
                   pdfValidator: (value) => _file == null && isSubmitted
                       ? 'يرجى إرفاق ملف PDF'
                       : null, // تحقق من الملف فقط عند الإرسال
@@ -147,18 +175,18 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   onDateSelected: (date) {
                     setState(() {
                       taskDateController.text =
-                      "${date.year}-${date.month}-${date.day}";
+                          "${date.year}-${date.month}-${date.day}";
                     });
                   },
                   bookNumberController: bookNumberController,
                   bookNumberValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
+                      value!.isEmpty ? 'يرجى إدخال رقم الكتاب' : null,
                   taskController: taskController,
                   taskValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال المهمة' : null,
+                      value!.isEmpty ? 'يرجى إدخال المهمة' : null,
                   departmentController: departmentController,
                   departmentValidator: (value) =>
-                  value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
+                      value!.isEmpty ? 'يرجى إدخال اسم الإدارة' : null,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -170,26 +198,28 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                         labelText: 'أدخل عدد الأيام',
                         icon: Icons.onetwothree_outlined,
                         validator: (value) =>
-                        value!.isEmpty ? 'يرجى إدخال عدد الأيام' : null,
+                            value!.isEmpty ? 'يرجى إدخال عدد الأيام' : null,
                         onChanged: (value) {
                           setState(() {
                             // تحقق من القيمة المدخلة إذا كانت أكبر من عدد الأيام المسموح بها
                             int enteredDays = int.tryParse(value) ?? 0;
-                            int allowedDays = int.tryParse(_leaveController.text) ?? 0;
+                            int allowedDays =
+                                int.tryParse(_leaveController.text) ?? 0;
 
                             if (enteredDays > allowedDays) {
-
                               // إظهار الـ SnackBar مباشرة هنا
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('رصيد إجازتك لا يسمح بعدد الأيام المدخل.'),
-                                  backgroundColor: Colors.red,  // يمكنك تغيير اللون حسب الحاجة
-                                  duration: Duration(seconds: 3), // مدة ظهور الـ SnackBar
+                                  content: Text(
+                                      'رصيد إجازتك لا يسمح بعدد الأيام المدخل.'),
+                                  backgroundColor: Colors
+                                      .red, // يمكنك تغيير اللون حسب الحاجة
+                                  duration: Duration(
+                                      seconds: 3), // مدة ظهور الـ SnackBar
                                 ),
                               );
                               daysController.clear();
                             }
-
                           });
                           setState(() {});
                         },
@@ -202,12 +232,12 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                         controller: _leaveController,
                         readOnly: true,
                         keyboardType: TextInputType.text,
-                        labelText:  'عدد الأيام المسموح بها',
+                        labelText: 'عدد الأيام المسموح بها',
                         icon: Icons.pin_rounded,
                       ),
 
                       Gap(16.0), // مسافة بين الحقول
-                      DateFormFieldWidgetFS (
+                      DateFormFieldWidgetFS(
                         days: int.tryParse(daysController.text) ?? 0,
                         requestDateController: requestDateController,
                         startDateController: leaveStartController,
@@ -216,14 +246,12 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                       ),
                       Gap(10.0),
                       isLoading
-                          ? CustomLoadingIndicator(
-
-                      )
+                          ? CustomLoadingIndicator()
                           : LargeButton(
-                        buttonText: 'إرسال الطلب',
-                        color: AppColors.primaryColor,
-                        onPressed: _submitForm,
-                      ),
+                              buttonText: 'إرسال الطلب',
+                              color: AppColors.primaryColor,
+                              onPressed: _submitForm,
+                            ),
                       Gap(20.0),
                     ],
                   ),
@@ -267,7 +295,6 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
         ));
       }
 
-
       final response = await request.send();
 
       if (response.statusCode == 200) {
@@ -281,7 +308,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
             ),
             duration: Duration(seconds: 2),
             backgroundColor:
-            jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
+                jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
           ),
         );
         _resetFields();
@@ -306,7 +333,6 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
       setState(() => isLoading = false);
     }
   }
-
 
   void _submitForm() {
     setState(() {
@@ -340,8 +366,6 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
         };
         _sendRequestToAPI(requestData);
         // عرض رسالة نجاح بعد إرسال البيانات
-
-
       }
     } else if (_selectedOption == "لا") {
       // إذا تم اختيار "نعم" فقط يتم التحقق من الحقول
@@ -358,7 +382,6 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
           "resume_date": resumptionController.text,
         };
         _sendRequestToAPI(requestData);
-
       }
     }
   }
@@ -378,7 +401,6 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
       isSubmitted = false;
     });
   }
-
 
   // فتح نافذة اختيار الملف
   void _openFilePicker() async {
