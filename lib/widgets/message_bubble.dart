@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:qacc_application/widgets/pdf_viewer_network_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class MessageBubble extends StatelessWidget {
   final Map<String, dynamic> message;
   final String sender;
-
-  const MessageBubble({required this.message, required this.sender, Key? key})
+  final String updateApiPath;
+  const MessageBubble(
+      {required this.message,
+      required this.sender,
+      required this.updateApiPath,
+      Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // تحديث الحالة إذا لم تكن مقروءة
+    if (message['read_status'] == 'unread') {
+      _markAsRead(message['id']);
+    }
+
     String messageText = message['message_text']?.trim() ?? '';
     bool hasText = messageText.isNotEmpty;
     bool hasFile = message['file_url'] != null;
@@ -113,9 +122,13 @@ class MessageBubble extends StatelessWidget {
     return imageExtensions.any((ext) => fileName.toLowerCase().endsWith(ext));
   }
 
-  Future<void> _launchFile(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+  Future<void> _markAsRead(int messageId) async {
+    final url = Uri.parse(
+        'https://hr.qacc.ly/php/$updateApiPath?message_id=$messageId',);
+    try {
+      await http.get(url);
+    } catch (e) {
+      print('فشل تحديث حالة الرسالة: $e');
     }
   }
 }

@@ -83,7 +83,7 @@ class _ArchivesScreenState extends State<ArchivesScreen> {
                     padding: EdgeInsets.only(top: 10.0),
                     itemCount: _messages.length,
                     itemBuilder: (context, index) {
-                      return MessageBubble(message: _messages[index], sender: 'المحفوظات',);
+                      return MessageBubble(message: _messages[index], sender: 'المحفوظات', updateApiPath: 'update_message_status.php',);
                     },
                   ),
       ),

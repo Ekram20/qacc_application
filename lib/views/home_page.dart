@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async'; // لاستخدام Timer
@@ -12,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
+import 'package:qacc_application/widgets/animated_text.dart';
 import 'package:qacc_application/widgets/image_text_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -212,7 +214,7 @@ class _HomePageState extends State<HomePage> {
               ),
 
               //Divider(),
-              Gap(15.0),
+              Gap(20.0),
               // إضافة النقاط لتوضيح عدد الإعلانات
               SmoothPageIndicator(
                 controller: _pageController,
@@ -225,6 +227,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               // هنا سيتم استخدام Widget آخر مثل ImageTextCard
+              Gap(15.0),
+
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: FadeInUp(
@@ -248,27 +252,52 @@ class _HomePageState extends State<HomePage> {
                           Expanded(
                             child: InkWell(
                               onTap: () {
-                                AutoRouter.of(context)
-                                    .push(FormSelectionRoute());
+                                //   AutoRouter.of(context)
+                                //  .push(FormSelectionRoute());
                               },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Signing_A_Document.png',
-                                  mainText: 'طلب نموذج'),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                alignment: Alignment.topCenter,
+                                children: [
+                                  ImageTextCard(
+                                      image:
+                                          'assets/images/Signing_A_Document.png',
+                                      mainText: 'طلب نموذج'),
+                                  Positioned(
+                                      top: -15,
+                                      child: AnimatedText(
+                                        texts: ['قريباً', 'ترقبوا'],
+                                        startIndex: 0,
+                                      )),
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      Gap(15.0),
+                      Gap(25.0),
                       Row(
                         children: [
                           Expanded(
                             child: InkWell(
                               onTap: () {
-                                AutoRouter.of(context).push(ItemsOrderRoute());
+                                // AutoRouter.of(context).push(ItemsOrderRoute());
                               },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Create_Order.png',
-                                  mainText: 'طلب أصناف'),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                alignment: Alignment.topCenter,
+                                children: [
+                                  ImageTextCard(
+                                      image: 'assets/images/Create_Order.png',
+                                      mainText: 'طلب أصناف'),
+                                  Positioned(
+                                      top: -15,
+                                      child: AnimatedText(
+                                        texts: ['قريباً', 'ترقبوا'],
+                                        startIndex: 0,
+                                      )),
+                                ],
+                              ),
                             ),
                           ),
                           Gap(15.0),
@@ -286,18 +315,30 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ],
                       ),
-                      Gap(15.0),
+                      Gap(25.0),
                       Row(
                         children: [
                           Expanded(
                             child: InkWell(
                               onTap: () {
-                                AutoRouter.of(context)
-                                    .push(MaintenanceRequestType());
+                                // AutoRouter.of(context)
+                                // .push(MaintenanceRequestType());
                               },
-                              child: ImageTextCard(
-                                  image: 'assets/images/Service.png',
-                                  mainText: 'طلب الصيانة'),
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                alignment: Alignment.topCenter,
+                                children: [
+                                  ImageTextCard(
+                                      image: 'assets/images/Service.png',
+                                      mainText: 'طلب الصيانة'),
+                                  Positioned(
+                                      top: -15,
+                                      child: AnimatedText(
+                                        texts: ['قريباً', 'ترقبوا'],
+                                        startIndex: 0,
+                                      )),
+                                ],
+                              ),
                             ),
                           ),
                         ],

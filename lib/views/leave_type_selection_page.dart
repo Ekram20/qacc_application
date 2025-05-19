@@ -23,6 +23,10 @@ class LeaveTypeSelectionPage extends StatefulWidget {
 
 class _LeaveTypeSelectionPageState extends State<LeaveTypeSelectionPage> {
   late int employeeId;
+  bool isExamLeaveAllowed = false;
+  bool isMarriageLeaveTaken = false;
+  bool isHajjLeaveTaken = false;
+  bool isDeathLeaveTaken = false;
 
   @override
   void initState() {
@@ -30,6 +34,30 @@ class _LeaveTypeSelectionPageState extends State<LeaveTypeSelectionPage> {
 
     employeeId = Provider.of<EmployeeProvider>(context, listen: false)
         .employeeData!["id"];
+
+    checkExamLeavePermission(employeeId).then((allowed) {
+      setState(() {
+        isExamLeaveAllowed = allowed;
+      });
+    });
+
+    checkLeaveTaken(context, "اجازة الزواج").then((taken) {
+      setState(() {
+        isMarriageLeaveTaken = taken;
+      });
+    });
+
+    checkLeaveTaken(context, "اجازة الحج").then((taken) {
+      setState(() {
+        isHajjLeaveTaken = taken;
+      });
+    });
+
+    checkLeaveTaken(context, "اجازة الوفاة").then((taken) {
+      setState(() {
+        isDeathLeaveTaken = taken;
+      });
+    });
   }
 
   Future<bool> checkLeaveTaken(BuildContext context, String leaveType) async {
@@ -41,6 +69,19 @@ class _LeaveTypeSelectionPageState extends State<LeaveTypeSelectionPage> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       return result['taken']; // إرجاع true إذا كان الموظف قد أخذ الإجازة مسبقًا
+    }
+    return false;
+  }
+
+  Future<bool> checkExamLeavePermission(int employeeId) async {
+    final response = await http.post(
+      Uri.parse('https://hr.qacc.ly/php/check_exam_permission.php'),
+      body: {'employee_id': employeeId.toString()},
+    );
+
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      return result['allowed'] == true;
     }
     return false;
   }
@@ -129,47 +170,38 @@ class _LeaveTypeSelectionPageState extends State<LeaveTypeSelectionPage> {
                           children: [
                             Expanded(
                               child: InkWell(
-                                onTap: () async {
-                                  bool hasTakenLeave = await checkLeaveTaken(
-                                      context, "اجازة الزواج");
-                                  if (!hasTakenLeave) {
-                                    context.router.push(MarriageLeaveRoute());
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                        "لا يمكنك التقديم لهذه الإجازة مرة أخرى",
-                                        textAlign: TextAlign.right,
-                                      )),
-                                    );
-                                  }
-                                },
-                                child: ImageTextCard(
+                                onTap: isMarriageLeaveTaken
+                                    ? null // يمنع التفاعل
+                                    : () {
+                                        context.router
+                                            .push(MarriageLeaveRoute());
+                                      },
+                                child: Opacity(
+                                  opacity: isMarriageLeaveTaken
+                                      ? 0.5
+                                      : 1.0, // يظهر رمادي
+                                  child: ImageTextCard(
                                     image: 'assets/images/Diamond_Ring.png',
-                                    mainText: 'إجازة الزواج'),
+                                    mainText: 'إجازة الزواج',
+                                  ),
+                                ),
                               ),
                             ),
                             Gap(15),
                             Expanded(
                               child: InkWell(
-                                onTap: () async {
-                                  bool hasTakenLeave = await checkLeaveTaken(
-                                      context, "اجازة الوفاة");
-                                  if (!hasTakenLeave) {
-                                    context.router.push(DeathLeave());
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                        "لا يمكنك التقديم لهذه الإجازة مرة أخرى",
-                                        textAlign: TextAlign.right,
-                                      )),
-                                    );
-                                  }
-                                },
-                                child: ImageTextCard(
+                                onTap: isDeathLeaveTaken
+                                    ? null
+                                    : () {
+                                        context.router.push(DeathLeave());
+                                      },
+                                child: Opacity(
+                                  opacity: isDeathLeaveTaken ? 0.5 : 1.0,
+                                  child: ImageTextCard(
                                     image: 'assets/images/Paper.png',
-                                    mainText: 'إجازة الوفاة'),
+                                    mainText: 'إجازة الوفاة',
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -179,35 +211,38 @@ class _LeaveTypeSelectionPageState extends State<LeaveTypeSelectionPage> {
                           children: [
                             Expanded(
                               child: InkWell(
-                                onTap: () async {
-                                  bool hasTakenLeave = await checkLeaveTaken(
-                                      context, "اجازة الحج");
-                                  if (!hasTakenLeave) {
-                                    context.router.push(HajjLeave());
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                        "لا يمكنك التقديم لهذه الإجازة مرة أخرى",
-                                        textAlign: TextAlign.right,
-                                      )),
-                                    );
-                                  }
-                                },
-                                child: ImageTextCard(
+                                onTap: isHajjLeaveTaken
+                                    ? null
+                                    : () {
+                                        context.router.push(HajjLeave());
+                                      },
+                                child: Opacity(
+                                  opacity: isHajjLeaveTaken ? 0.5 : 1.0,
+                                  child: ImageTextCard(
                                     image: 'assets/images/Kaaba.png',
-                                    mainText: 'إجازة الحج'),
+                                    mainText: 'إجازة الحج',
+                                  ),
+                                ),
                               ),
                             ),
                             Gap(15),
                             Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  context.router.push(ExamsLeave());
-                                },
-                                child: ImageTextCard(
-                                    image: 'assets/images/Grades.png',
-                                    mainText: 'إجازة الإمتحانات'),
+                              child: IgnorePointer(
+                                ignoring: !isExamLeaveAllowed,
+                                child: Opacity(
+                                  opacity: isExamLeaveAllowed ? 1.0 : 0.5,
+                                  child: InkWell(
+                                    onTap: isExamLeaveAllowed
+                                        ? () {
+                                            context.router.push(ExamsLeave());
+                                          }
+                                        : null,
+                                    child: ImageTextCard(
+                                      image: 'assets/images/Grades.png',
+                                      mainText: 'إجازة الإمتحانات',
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ],
