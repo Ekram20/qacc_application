@@ -11,6 +11,7 @@ import 'package:qacc_application/models/app_colors.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -100,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (employeeData != null) {
         await saveTokenToDatabase(email);
 
-        // حفظ بيانات الموظف في EmployeeProvider
+        // حفظ بيانات الموظف في EmployeeProvider2
         Provider.of<EmployeeProvider>(context, listen: false)
             .setEmployeeData(employeeData);
 
@@ -136,17 +137,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      //backgroundColor: AppColors.secondaryColor.shade900,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            //begin: Alignment.topLeft,
-            //end: Alignment.bottomRight,
             colors: [
-              AppColors.secondaryColor.shade900, // لون داكن في الأعلى
-              AppColors.secondaryColor.shade500, // لون أفتح في المنتصف
-              AppColors.secondaryColor.shade900, // لون فاتح في الأسفل
+              AppColors.secondaryColor.shade900,
+              AppColors.secondaryColor.shade500,
+              AppColors.secondaryColor.shade900,
             ],
           ),
         ),
@@ -184,23 +183,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     Gap(10.0),
                     FadeInUp(
                       duration: Duration(seconds: 2),
-                      child: Text(
+                      child: AutoSizeText(
                         "!مرحبًا بك",
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        minFontSize: 12,
+                        maxFontSize: 24,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     Gap(10),
                     FadeInUp(
                       duration: Duration(seconds: 2),
-                      child: Text(
+                      child: AutoSizeText(
                         "قم بتسجيل الدخول للمتابعة",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white70,
-                            ),
+                          color: Colors.white70,
+                        ),
+                        maxLines: 1,
+                        minFontSize: 10,
+                        maxFontSize: 18,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     Gap(30),
@@ -226,15 +232,21 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
-                                  "Google تسجيل الدخول باستخدام",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                Expanded(
+                                  child: AutoSizeText(
+                                    "Google تسجيل الدخول باستخدام",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    minFontSize: 10,
+                                    maxFontSize: 16,
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
                                 Gap(15.0),
                                 Image.asset(
@@ -258,20 +270,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    AutoSizeText(
                       "© 2025 جميع الحقوق محفوظة",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white54,
-                            fontSize: 12,
-                          ),
+                        color: Colors.white54,
+                        fontSize: 12,
+                      ),
+                      maxLines: 1,
+                      minFontSize: 10,
+                      maxFontSize: 14,
+                      textAlign: TextAlign.center,
                     ),
-                    Text(
+                    AutoSizeText(
                       "® م. إكرام العرضاوي ®  |  م. رحمة سعيد",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      minFontSize: 10,
+                      maxFontSize: 16,
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -281,5 +301,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+
   }
 }
