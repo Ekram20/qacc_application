@@ -30,5 +30,7 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: SelectManagerRoleRoute.page),
         AutoRoute(page: DirectManagerLeavesApproval.page),
         AutoRoute(page: HigherManagerLeavesApproval.page),
+        AutoRoute(page: TermsConditionsRoute.page),
+
       ];
 }

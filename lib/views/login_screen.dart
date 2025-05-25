@@ -1,11 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/gestures.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:qacc_application/models/app_colors.dart';
 import 'package:animate_do/animate_do.dart';
@@ -22,6 +24,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _isTermsAccepted = false; // حالة Checkbox
+
   // تسجيل الدخول عبر Google
   Future<UserCredential?> signInWithGoogle() async {
     try {
@@ -89,8 +93,25 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // يمنع إغلاقه بالضغط خارج الحوار
+      builder: (context) {
+        return Center(
+          child: LoadingAnimationWidget.threeArchedCircle(
+            color: Colors.white,
+            size: 50,
+          ),
+        );
+      },
+    );
+  }
+
   // تنفيذ تسجيل الدخول
   void handleSignIn() async {
+    showLoadingDialog(context); // ⬅️ إظهار Dialog قبل البدء
+
     UserCredential? userCredential = await signInWithGoogle();
     if (userCredential != null) {
       String email = userCredential.user!.email!;
@@ -105,9 +126,13 @@ class _LoginScreenState extends State<LoginScreen> {
         Provider.of<EmployeeProvider>(context, listen: false)
             .setEmployeeData(employeeData);
 
+        Navigator.of(context, rootNavigator: true).pop(); // ⬅️ إغلاق Dialog
+
         // الانتقال إلى الصفحة الرئيسية
         context.router.replace(BottomNavigationBarEmployees());
       } else {
+        Navigator.of(context, rootNavigator: true).pop(); // ⬅️ إغلاق Dialog
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -120,6 +145,8 @@ class _LoginScreenState extends State<LoginScreen> {
         await FirebaseAuth.instance.signOut();
         await GoogleSignIn().signOut();
       }
+    } else {
+      Navigator.of(context, rootNavigator: true).pop(); // ⬅️ إغلاق Dialog
     }
   }
 
@@ -137,7 +164,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -185,10 +211,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       duration: Duration(seconds: 2),
                       child: AutoSizeText(
                         "!مرحبًا بك",
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                         maxLines: 1,
                         minFontSize: 12,
                         maxFontSize: 24,
@@ -201,8 +228,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: AutoSizeText(
                         "قم بتسجيل الدخول للمتابعة",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white70,
-                        ),
+                              color: Colors.white70,
+                            ),
                         maxLines: 1,
                         minFontSize: 10,
                         maxFontSize: 18,
@@ -225,38 +252,158 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                         width: double.infinity,
-                        child: MaterialButton(
-                          onPressed: handleSignIn,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: AutoSizeText(
-                                    "Google تسجيل الدخول باستخدام",
+                        child: AnimatedOpacity(
+                          opacity: _isTermsAccepted ? 1.0 : 0.5,
+                          duration: Duration(milliseconds: 300),
+                          child: MaterialButton(
+                            onPressed: _isTermsAccepted
+                                ? handleSignIn
+                                : () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => Directionality(
+                                        textDirection: TextDirection
+                                            .rtl, // هذا يضبط ترتيب العناصر من اليمين لليسار
+
+                                        child: AlertDialog(
+                                          backgroundColor:
+                                              AppColors.secondaryColor.shade800,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          title: Row(
+                                            children: [
+                                              Icon(Icons.warning_amber_rounded,
+                                                  color: Colors.amber),
+                                              SizedBox(width: 8),
+                                              Text(
+                                                "تنبيه",
+                                                style: TextStyle(
+                                                  color: AppColors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          content: Text(
+                                            "يرجى الموافقة على الشروط والأحكام والقوانين قبل المتابعة",
+                                            style: TextStyle(
+                                                color: Colors.white70),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: Text(
+                                                "حسنًا",
+                                                style: TextStyle(
+                                                    color: Colors.amber),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                            disabledColor: Colors.grey.shade600,
+                            color: AppColors.secondaryColor.shade700,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50.0),
+                            ),
+                            elevation: 5,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: AutoSizeText(
+                                      "Google تسجيل الدخول باستخدام",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                      maxLines: 1,
+                                      minFontSize: 10,
+                                      maxFontSize: 16,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  Gap(15.0),
+                                  Image.asset(
+                                    'assets/images/google-logo.png',
+                                    height: 24,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Gap(15),
+                    FadeInUp(
+                      duration: Duration(seconds: 2),
+                      child: Row(
+                        textDirection: TextDirection.rtl,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Transform.scale(
+                            scale:
+                                1.0, // يمكنك تعديل القيمة حسب الحجم الذي تريده
+
+                            child: Checkbox(
+                              value: _isTermsAccepted,
+                              activeColor: Colors.white,
+                              checkColor: AppColors.secondaryColor.shade700,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isTermsAccepted = value ?? false;
+                                });
+                              },
+                            ),
+                          ),
+                          Flexible(
+                            child: AutoSizeText.rich(
+                              TextSpan(
+                                text: 'أوافق على ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                children: [
+                                  TextSpan(
+                                    text: 'الشروط والأحكام والقوانين',
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall
                                         ?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    minFontSize: 10,
-                                    maxFontSize: 16,
-                                    textAlign: TextAlign.center,
+                                          color: AppColors.primaryColor,
+                                          decoration: TextDecoration.underline,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        // استبدل هذا بالانتقال الفعلي لصفحة الشروط
+                                        context.router
+                                            .push(TermsConditionsRoute());
+                                      },
                                   ),
-                                ),
-                                Gap(15.0),
-                                Image.asset(
-                                  'assets/images/google-logo.png',
-                                  height: 24,
-                                ),
-                              ],
+                                ],
+                              ),
+                              maxLines: 1,
+                              minFontSize: 10,
+                              maxFontSize: 16,
+                              textAlign: TextAlign.end,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ],
@@ -273,9 +420,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     AutoSizeText(
                       "© 2025 جميع الحقوق محفوظة",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white54,
-                        fontSize: 12,
-                      ),
+                            color: Colors.white54,
+                            fontSize: 12,
+                          ),
                       maxLines: 1,
                       minFontSize: 10,
                       maxFontSize: 14,
@@ -284,10 +431,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     AutoSizeText(
                       "® م. إكرام العرضاوي ®  |  م. رحمة سعيد",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                       maxLines: 1,
                       minFontSize: 10,
                       maxFontSize: 16,
@@ -301,6 +448,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-
   }
 }
