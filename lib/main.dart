@@ -213,6 +213,7 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       routerConfig: appRouter.config(),
+      
     );
   }
 }
