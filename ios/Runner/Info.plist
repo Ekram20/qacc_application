@@ -45,5 +45,18 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+
+	<key>UIBackgroundModes</key>
+	<array>
+	<string>remote-notification</string>
+	</array>
+
+	<key>NSLocalNotificationUsageDescription</key>
+	<string>نحتاج لتفعيل الإشعارات المحلية لتنبيهك بالتحديثات</string>
+
+	<key>NSUserNotificationUsageDescription</key>
+	<string>نحتاج لتفعيل الإشعارات لتنبيهك بالمهام</string>
+
 </dict>
 </plist>

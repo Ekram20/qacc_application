@@ -8,7 +8,6 @@ import 'package:qacc_application/router/app_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -22,42 +21,43 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-);
+  );
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   const initializationSettings = InitializationSettings(
     android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    iOS: DarwinInitializationSettings(),
+  );
+
+  DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
   );
 
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'default_channel', // لازم يكون نفس الموجود في كود الإشعار
-  'Default Channel',
-  description: 'This channel is used for important notifications.',
-  importance: Importance.max, // أهمية عالية عشان يظهر الإشعار
-  playSound: true,
-);
+    'default_channel', // لازم يكون نفس الموجود في كود الإشعار
+    'Default Channel',
+    description: 'This channel is used for important notifications.',
+    importance: Importance.max, // أهمية عالية عشان يظهر الإشعار
+    playSound: true,
+  );
 
-await flutterLocalNotificationsPlugin
-    .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-    ?.createNotificationChannel(channel);
-
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-
-
-
   runApp(MultiProvider(
     providers: [
-              ChangeNotifierProvider(create: (_) => EmployeeProvider()),
-
+      ChangeNotifierProvider(create: (_) => EmployeeProvider()),
     ],
- child: const MyApp(),
-    
+    child: const MyApp(),
   ));
 }
-
 
 void _showNotification(RemoteMessage message) async {
   final notification = message.notification;
@@ -113,8 +113,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
-    @override
+  @override
   void initState() {
     super.initState();
     _setupFCM();
@@ -152,7 +151,6 @@ class _MyAppState extends State<MyApp> {
     // يمكن التنقل لصفحة معينة هنا حسب محتوى الرسالة
   }
 
-
   @override
   Widget build(BuildContext context) {
     AppRouter appRouter = AppRouter();
@@ -160,9 +158,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        textSelectionTheme:  TextSelectionThemeData(
-          selectionColor: AppColors.primaryColor.shade50, // ✅ لون التحديد الذهبي
-          selectionHandleColor: AppColors.primaryColor.shade50, // ✅ لون المقبض عند تعديل التحديد
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor:
+              AppColors.primaryColor.shade50, // ✅ لون التحديد الذهبي
+          selectionHandleColor:
+              AppColors.primaryColor.shade50, // ✅ لون المقبض عند تعديل التحديد
           cursorColor: AppColors.primaryColor.shade50, // ✅ لون المؤشر الذهبي
         ),
         scaffoldBackgroundColor: AppColors.backgroundColor,
@@ -213,7 +213,6 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       routerConfig: appRouter.config(),
-      
     );
   }
 }
