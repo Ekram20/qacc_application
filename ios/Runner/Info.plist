@@ -58,9 +58,6 @@
 	<key>NSUserNotificationUsageDescription</key>
 	<string>نحتاج لتفعيل الإشعارات لتنبيهك بالمهام</string>
 
-
-	<!-- Put me in the [my_project]/ios/Runner/Info.plist file -->
-	<!-- Google Sign-in Section -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -68,12 +65,15 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<!-- TODO Replace this value: -->
-				<!-- Copied from GoogleService-Info.plist key REVERSED_CLIENT_ID -->
 				<string>com.googleusercontent.apps.1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4</string>
 			</array>
 		</dict>
 	</array>
-	<!-- End of the Google Sign-in Section -->
+
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googleapis</string>
+		<string>com.googleusercontent.apps.1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4</string>
+	</array>
 </dict>
 </plist>
