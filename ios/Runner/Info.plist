@@ -47,9 +47,11 @@
 	<true/>
 
 
+
+	<!-- إشعارات -->
 	<key>UIBackgroundModes</key>
 	<array>
-	<string>remote-notification</string>
+		<string>remote-notification</string>
 	</array>
 
 	<key>NSLocalNotificationUsageDescription</key>
@@ -58,6 +60,7 @@
 	<key>NSUserNotificationUsageDescription</key>
 	<string>نحتاج لتفعيل الإشعارات لتنبيهك بالمهام</string>
 
+	<!-- إعداد Google Sign-In -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -65,6 +68,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<!-- هذا هو REVERSED_CLIENT_ID من GoogleService-Info.plist -->
 				<string>com.googleusercontent.apps.1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4</string>
 			</array>
 		</dict>
@@ -72,8 +76,18 @@
 
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>google</string>
+		<string>googlechrome</string>
 		<string>googleapis</string>
 		<string>com.googleusercontent.apps.1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4</string>
 	</array>
+
+	<!-- السماح بتحميل الموارد -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+
 </dict>
 </plist>
