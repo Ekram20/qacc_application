@@ -1,6 +1,6 @@
 import Flutter
 import UIKit
-import FirebaseCore  // ✅ استيراد FirebaseCore
+//import FirebaseCore  // ✅ استيراد FirebaseCore
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -10,7 +10,7 @@ import FirebaseCore  // ✅ استيراد FirebaseCore
   ) -> Bool {
     
         // ✅ تهيئة Firebase
-    FirebaseApp.configure()
+    //FirebaseApp.configure()
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
