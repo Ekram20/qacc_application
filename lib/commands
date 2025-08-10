@@ -1,0 +1,15 @@
+flutter clean
+flutter pub get
+cd ios
+pod deintegrate
+pod install
+cd ..
+flutter run
+grep PRPDUCT_BUNDLE_IDENTIFIER ios/Runner.xcodeproj/project.pbxproj
+
+cd ~/Documents/qacc_application
+cd ios
+pod install
+
+File > Add Packages...
+https://github.com/firebase/firebase-ios-sdk
