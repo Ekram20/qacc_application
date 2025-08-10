@@ -130,19 +130,9 @@ class _HomePageState extends State<HomePage> {
                 Icons.more_vert,
                 color: AppColors.white,
                 size: 30.0,
-              ), // زر النقاط الثلاث
+              ),
               onSelected: (item) {
-                // التعامل مع العنصر المحدد
                 switch (item) {
-                  case 1:
-                    print('تم اختيار الخيار 1');
-                    break;
-                  case 2:
-                    print('تم اختيار الخيار 2');
-                    break;
-                  case 3:
-                    print('تم اختيار الخيار 3');
-                    break;
                   case 4:
                     signOut(context);
                     break;
@@ -151,32 +141,37 @@ class _HomePageState extends State<HomePage> {
                 }
               },
               itemBuilder: (context) => [
+                // عنصر غير قابل للتحديد: دليل الاستخدام
                 PopupMenuItem<int>(
-                  value: 1,
+                  enabled: false,
                   child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(employeeData!['id'].toString())),
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      ' دليل الاستخدام',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
                 ),
-                PopupMenuItem<int>(
-                  value: 2,
-                  child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(employeeData['name'])),
-                ),
-                PopupMenuItem<int>(
-                  value: 3,
-                  child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text('الخيار 3')),
-                ),
+
+                // عنصر قابل للتحديد: تسجيل الخروج
                 PopupMenuItem<int>(
                   value: 4,
                   child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text('تسجيل الخروج')),
+                    alignment: Alignment.centerRight,
+                    child: Text(' تسجيل الخروج',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             )
+
           ],
         ),
         body: SingleChildScrollView(

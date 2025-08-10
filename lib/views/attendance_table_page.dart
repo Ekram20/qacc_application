@@ -75,27 +75,31 @@ class _AttendanceTablePageState extends State<AttendanceTablePage> {
     });
   }
 
-  // دالة لتحديد لون الوقت بناءً على قواعد الحضور والانصراف
   Color getAttendanceColor(String time) {
     try {
-      final attendanceTime = TimeOfDay(
-        hour: int.parse(time.split(":")[0]),
-        minute: int.parse(time.split(":")[1]),
-      );
+      final parts = time.split(":");
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
 
-      if (attendanceTime.hour < 9 || (attendanceTime.hour == 9 && attendanceTime.minute <= 30)) {
-        return Colors.black;
-      } else if (attendanceTime.hour >= 9 && attendanceTime.minute > 30) {
-        return Colors.red;
-      } else if (attendanceTime.hour < 14 || (attendanceTime.hour == 14 && attendanceTime.minute < 30)) {
-        return Colors.red;
+      // إنشاء وقت للمقارنة
+      final totalMinutes = hour * 60 + minute;
+
+      // حدود المقارنة
+      final checkInLimit = 9 * 60 + 30;     // 9:30 صباحًا = 570 دقيقة
+      final checkOutLimit = 14 * 60 + 30;   // 2:30 مساءً = 870 دقيقة
+
+      if (totalMinutes <= checkInLimit) {
+        return Colors.black; // حضور منتظم أو مبكر
+      } else if (totalMinutes < checkOutLimit) {
+        return Colors.red;   // تأخير أو انصراف مبكر
       } else {
-        return Colors.black;
+        return Colors.black; // انصراف منتظم أو متأخر
       }
     } catch (e) {
       return Colors.black;
     }
   }
+
 
   // دالة لاختيار التاريخ باستخدام showDatePicker
   Future<void> _selectDate(BuildContext context, TextEditingController controller, {required bool isStartDate}) async {
@@ -245,7 +249,7 @@ class _AttendanceTablePageState extends State<AttendanceTablePage> {
                                               child: Text(
                                                 authTime,
                                                 textAlign: TextAlign.center,
-                                                style: TextStyle(color: getAttendanceColor(authTime)),
+                                                style: TextStyle(color: getAttendanceColor(authTime),),
                                               ),
                                             ),
                                           ),
