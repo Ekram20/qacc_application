@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4.apps.googleusercontent.com</string>
+	<string>1065371035020-lktp0q4iq4ggvks92m8uhmegp53mb7sq.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4</string>
+	<string>com.googleusercontent.apps.1065371035020-lktp0q4iq4ggvks92m8uhmegp53mb7sq</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>1065371035020-c7gssjbsnv80imicqkag3lba7hs7p3op.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.qaccApplication</string>
+	<string>com.qacc.qaccApplication</string>
 	<key>PROJECT_ID</key>
 	<string>qacc-authentication</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1065371035020:ios:373f1a482f3801d95ee2a9</string>
+	<string>1:1065371035020:ios:7886f3dda433c9d15ee2a9</string>
 </dict>
 </plist>

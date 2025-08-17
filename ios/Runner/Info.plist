@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>HR</string>
+	<string>Qacc HR</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -46,33 +46,33 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
-	<key>NSLocalNotificationUsageDescription</key>
-	<string>نحتاج لتفعيل الإشعارات المحلية لتنبيهك بالتحديثات</string>
-	<key>NSUserNotificationUsageDescription</key>
-	<string>نحتاج لتفعيل الإشعارات لتنبيهك بالمهام</string>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>google</string>
-		<string>googlechrome</string>
-		<string>googleapis</string>
-		<string>com.googleusercontent.apps.1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4</string>
-	</array>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.1065371035020-vn2v3m6bq3n7tteo5tadcqc63c4pi9t4</string>
-			</array>
-		</dict>
-	</array>
+    	<array>
+    		<string>remote-notification</string>
+    	</array>
+    	<key>NSLocalNotificationUsageDescription</key>
+    	<string>نحتاج لتفعيل الإشعارات المحلية لتنبيهك بالتحديثات</string>
+    	<key>NSUserNotificationUsageDescription</key>
+    	<string>نحتاج لتفعيل الإشعارات لتنبيهك بالمهام</string>
+    	<key>LSApplicationQueriesSchemes</key>
+    	<array>
+    		<string>google</string>
+    		<string>googlechrome</string>
+    		<string>googleapis</string>
+    		<string>com.googleusercontent.apps.1065371035020-lktp0q4iq4ggvks92m8uhmegp53mb7sq</string>
+    	</array>
+    	<key>NSAppTransportSecurity</key>
+    	<dict>
+    		<key>NSAllowsArbitraryLoads</key>
+    		<true/>
+    	</dict>
+    	<key>CFBundleURLTypes</key>
+    	<array>
+    		<dict>
+    			<key>CFBundleURLSchemes</key>
+    			<array>
+    				<string>com.googleusercontent.apps.1065371035020-lktp0q4iq4ggvks92m8uhmegp53mb7sq</string>
+    			</array>
+    		</dict>
+    	</array>
 </dict>
 </plist>

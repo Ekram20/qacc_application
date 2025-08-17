@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAdd0Aly1QTxMUdmoEl9y20vdfJYaa9fO0',
-    appId: '1:1065371035020:android:e47fd2dd267a133e5ee2a9',
+    appId: '1:1065371035020:android:ba5237bd09cfea7f5ee2a9',
     messagingSenderId: '1065371035020',
     projectId: 'qacc-authentication',
     storageBucket: 'qacc-authentication.firebasestorage.app',
@@ -59,11 +59,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAb2kxyUbFffn37Ty9-MYdNQ2OXhdfxXKE',
-    appId: '1:1065371035020:ios:373f1a482f3801d95ee2a9',
+    appId: '1:1065371035020:ios:7886f3dda433c9d15ee2a9',
     messagingSenderId: '1065371035020',
     projectId: 'qacc-authentication',
     storageBucket: 'qacc-authentication.firebasestorage.app',
-    iosBundleId: 'com.example.qaccApplication',
+    androidClientId: '1065371035020-c7gssjbsnv80imicqkag3lba7hs7p3op.apps.googleusercontent.com',
+    iosClientId: '1065371035020-lktp0q4iq4ggvks92m8uhmegp53mb7sq.apps.googleusercontent.com',
+    iosBundleId: 'com.qacc.qaccApplication',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
