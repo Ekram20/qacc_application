@@ -24,7 +24,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isTermsAccepted = false; // حالة Checkbox
+  bool _isTermsAccepted = true; // حالة Checkbox
 
   // تسجيل الدخول عبر Google
   Future<UserCredential?> signInWithGoogle() async {
