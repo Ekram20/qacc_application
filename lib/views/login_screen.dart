@@ -14,6 +14,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:qacc_application/providers/employee_provider.dart';
 import 'package:qacc_application/router/app_router.gr.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -25,6 +26,91 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isTermsAccepted = true; // حالة Checkbox
+  bool _isCheckingAuth = true; // حالة للتحقق من المصادقة
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthState(); // التحقق من حالة المصادقة عند بدء التشغيل
+  }
+
+  // التحقق من حالة المصادقة عند فتح التطبيق
+  Future<void> _checkAuthState() async {
+    try {
+      // نعطي فرصة لواجهة المستخدم أن تعرض شاشة التحميل أولاً
+      // هذا يمنع الوميض السريع إذا كانت عملية التحقق سريعة جداً
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // التحقق من وجود مستخدم حالي في Firebase
+      User? user = FirebaseAuth.instance.currentUser;
+
+      // --- السيناريو 1: المستخدم مسجل دخوله ---
+      if (user != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final String? employeeDataJson = prefs.getString('employee_data');
+
+        Map<String, dynamic>? employeeData;
+
+        // التحقق من وجود بيانات محفوظة محلياً أولاً
+        if (employeeDataJson != null) {
+          employeeData = jsonDecode(employeeDataJson);
+        } else {
+          // إذا لم توجد بيانات محلية، تحقق من الخادم
+          employeeData = await checkEmployeeEmail(user.email!);
+          // إذا كان الموظف صالحًا، احفظ بياناته محليًا للمرة القادمة
+          if (employeeData != null) {
+            await _saveEmployeeDataLocally(employeeData);
+          }
+        }
+
+        // إذا تم العثور على بيانات الموظف (من أي مصدر)
+        if (employeeData != null && mounted) {
+          // تحديث حالة الموظف في التطبيق
+          Provider.of<EmployeeProvider>(
+            context,
+            listen: false,
+          ).setEmployeeData(employeeData);
+
+          // الانتقال مباشرة إلى الشاشة الرئيسية
+          context.router.replace(const BottomNavigationBarEmployees());
+
+          // **الأهم**: الخروج من الدالة فورًا لمنع إعادة بناء الواجهة
+          return;
+        }
+      }
+
+      // --- السيناريو 2: المستخدم غير مسجل أو ليس له صلاحية ---
+      // لن يتم الوصول إلى هذا الجزء إلا إذا فشلت كل الشروط أعلاه
+      if (mounted) {
+        setState(() {
+          // الآن فقط، نسمح بإظهار واجهة تسجيل الدخول
+          _isCheckingAuth = false;
+        });
+      }
+    } catch (e) {
+      print("❌ خطأ في التحقق من حالة المصادقة: $e");
+      // في حالة حدوث أي خطأ، أظهر واجهة تسجيل الدخول كخيار احتياطي
+      if (mounted) {
+        setState(() {
+          _isCheckingAuth = false;
+        });
+      }
+    }
+  }
+
+  // حفظ بيانات الموظف محلياً
+  Future<void> _saveEmployeeDataLocally(
+    Map<String, dynamic> employeeData,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('employee_data', jsonEncode(employeeData));
+  }
+
+  // مسح بيانات الموظف المحفوظة محلياً
+  Future<void> _clearEmployeeData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('employee_data');
+  }
 
   // تسجيل الدخول عبر Google
   Future<UserCredential?> signInWithGoogle() async {
@@ -44,8 +130,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       // 4️⃣ تسجيل الدخول باستخدام Firebase
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
 
       return userCredential;
     } catch (e) {
@@ -54,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-// التحقق من البريد الإلكتروني في قاعدة البيانات واسترجاع بيانات الموظف
+  // التحقق من البريد الإلكتروني في قاعدة البيانات واسترجاع بيانات الموظف
   Future<Map<String, dynamic>?> checkEmployeeEmail(String email) async {
     final response = await http.post(
       Uri.parse('https://hr.qacc.ly/php/check_employee_email.php'),
@@ -79,10 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (fcmToken != null) {
       final response = await http.post(
         Uri.parse('https://hr.qacc.ly/php/save_fcm_token.php'),
-        body: {
-          'email': email,
-          'fcm_token': fcmToken,
-        },
+        body: {'email': email, 'fcm_token': fcmToken},
       );
 
       if (response.statusCode == 200) {
@@ -121,10 +204,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (employeeData != null) {
         await saveTokenToDatabase(email);
+        await _saveEmployeeDataLocally(employeeData); // أضف هذا السطر
 
         // حفظ بيانات الموظف في EmployeeProvider2
-        Provider.of<EmployeeProvider>(context, listen: false)
-            .setEmployeeData(employeeData);
+        Provider.of<EmployeeProvider>(
+          context,
+          listen: false,
+        ).setEmployeeData(employeeData);
 
         Navigator.of(context, rootNavigator: true).pop(); // ⬅️ إغلاق Dialog
 
@@ -133,37 +219,72 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         Navigator.of(context, rootNavigator: true).pop(); // ⬅️ إغلاق Dialog
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "ليس لديك صلاحية الدخول، يرجى مراجعة شؤون الموظفين",
-              textAlign: TextAlign.right,
+        showDialog(
+          context: context,
+          builder: (context) => Directionality(
+            textDirection: TextDirection.rtl,
+            child: AlertDialog(
+              backgroundColor: AppColors.secondaryColor.shade800,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text(
+                    "خطأ في الصلاحية",
+                    style: TextStyle(color: AppColors.white),
+                  ),
+                ],
+              ),
+              content: Text(
+                "ليس لديك صلاحية الدخول، يرجى مراجعة شؤون الموظفين",
+                style: TextStyle(color: Colors.white70),
+                textAlign: TextAlign.right,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("حسنًا", style: TextStyle(color: Colors.red)),
+                ),
+              ],
             ),
-            backgroundColor: Colors.red,
           ),
         );
         await FirebaseAuth.instance.signOut();
         await GoogleSignIn().signOut();
+        await _clearEmployeeData(); // أضف هذا السطر
       }
     } else {
       Navigator.of(context, rootNavigator: true).pop(); // ⬅️ إغلاق Dialog
     }
   }
 
-/*   // تنفيذ تسجيل الدخول
-  void handleSignIn() async {
-    UserCredential? userCredential = await signInWithGoogle();
-    if (userCredential != null) {
-      String email = userCredential.user!.email!; // الحصول على الإيميل
-      print("✅ تسجيل دخول ناجح: $email");
-
-      // الانتقال إلى الشاشة الرئيسية بعد نجاح المصادقة
-      context.router.replace(BottomNavigationBarEmployees(email: email));
-    }
-  } */
-
   @override
   Widget build(BuildContext context) {
+    // إذا كانت عملية التحقق جارية، قم ببناء شاشة تحميل بسيطة ومستقلة
+    if (_isCheckingAuth) {
+      return Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.secondaryColor.shade900,
+                AppColors.secondaryColor.shade500,
+                AppColors.secondaryColor.shade900,
+              ],
+            ),
+          ),
+          child: Center(
+            child: LoadingAnimationWidget.threeArchedCircle(
+              color: Colors.white,
+              size: 50,
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -211,11 +332,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       duration: Duration(seconds: 2),
                       child: AutoSizeText(
                         "!مرحبًا بك",
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                         maxLines: 1,
                         minFontSize: 12,
                         maxFontSize: 24,
@@ -227,9 +348,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       duration: Duration(seconds: 2),
                       child: AutoSizeText(
                         "قم بتسجيل الدخول للمتابعة",
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white70,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                         maxLines: 1,
                         minFontSize: 10,
                         maxFontSize: 18,
@@ -269,12 +390,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                           backgroundColor:
                                               AppColors.secondaryColor.shade800,
                                           shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
                                           title: Row(
                                             children: [
-                                              Icon(Icons.warning_amber_rounded,
-                                                  color: Colors.amber),
+                                              Icon(
+                                                Icons.warning_amber_rounded,
+                                                color: Colors.amber,
+                                              ),
                                               SizedBox(width: 8),
                                               Text(
                                                 "تنبيه",
@@ -287,7 +412,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                           content: Text(
                                             "يرجى الموافقة على الشروط والأحكام والقوانين قبل المتابعة",
                                             style: TextStyle(
-                                                color: Colors.white70),
+                                              color: Colors.white70,
+                                            ),
                                             textAlign: TextAlign.right,
                                           ),
                                           actions: [
@@ -297,7 +423,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                               child: Text(
                                                 "حسنًا",
                                                 style: TextStyle(
-                                                    color: Colors.amber),
+                                                  color: Colors.amber,
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -370,18 +497,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: AutoSizeText.rich(
                               TextSpan(
                                 text: 'أوافق على ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: Colors.white,
-                                    ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.white),
                                 children: [
                                   TextSpan(
                                     text: 'الشروط والأحكام والقوانين',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
+                                    style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(
                                           color: AppColors.primaryColor,
                                           decoration: TextDecoration.underline,
@@ -390,8 +511,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
                                         // استبدل هذا بالانتقال الفعلي لصفحة الشروط
-                                        context.router
-                                            .push(TermsConditionsRoute());
+                                        context.router.push(
+                                          TermsConditionsRoute(),
+                                        );
                                       },
                                   ),
                                 ],
@@ -420,9 +542,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     AutoSizeText(
                       "© 2025 جميع الحقوق محفوظة",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white54,
-                            fontSize: 12,
-                          ),
+                        color: Colors.white54,
+                        fontSize: 12,
+                      ),
                       maxLines: 1,
                       minFontSize: 10,
                       maxFontSize: 14,
@@ -431,10 +553,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     AutoSizeText(
                       "® م. إكرام العرضاوي ®  |  م. رحمة سعيد",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 1,
                       minFontSize: 10,
                       maxFontSize: 16,

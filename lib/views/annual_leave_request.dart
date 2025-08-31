@@ -66,8 +66,10 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   void initState() {
     super.initState();
 
-    final employeeData =
-        Provider.of<EmployeeProvider>(context, listen: false).employeeData;
+    final employeeData = Provider.of<EmployeeProvider>(
+      context,
+      listen: false,
+    ).employeeData;
 
     _leaveController.text = employeeData?["annual_leave"].toString() ?? "";
     employeeId = employeeData?["id"] ?? 0;
@@ -78,18 +80,23 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
   }
 
   void getLeaveBalance() async {
-    final id = Provider.of<EmployeeProvider>(context, listen: false)
-        .employeeData?['id'];
+    final id = Provider.of<EmployeeProvider>(
+      context,
+      listen: false,
+    ).employeeData?['id'];
     if (id == null) return;
 
     try {
       final res = await http.get(
-          Uri.parse('http://www.hr.qacc.ly/php/get_employee_data.php?id=$id'));
+        Uri.parse('http://www.hr.qacc.ly/php/get_employee_data.php?id=$id'),
+      );
       final data = jsonDecode(res.body);
       if (data['success']) {
         // تحديث البيانات في الـ Provider
-        Provider.of<EmployeeProvider>(context, listen: false)
-            .updateEmployeeData(data['employee']);
+        Provider.of<EmployeeProvider>(
+          context,
+          listen: false,
+        ).updateEmployeeData(data['employee']);
         setState(() {
           _leaveController.text = data['employee']['annual_leave'].toString();
         });
@@ -132,20 +139,22 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                   title: 'نموذج طلب إجازة سنوية',
                   image: 'assets/images/Info.png',
                   onImageTap: () {
-                    context.router.push(LeaveInfoRoute(
-                      leaveName: 'الإجازة السنوية :',
-                      leaveDuration:
-                          'تكون الاجازة السنوية ثلاثين يوماً في السنة وخمسة واربعين يوماً لمن بلغ سن الخمسين سنة او تجاوزت مدة خدمته عشرون عاماً.',
-                      procedureStepsTitle: 'خطوات اجراء الإجازة :',
-                      stepDescription:
-                          'تعبئة نموذج طلب الاجازة رقم (A2) من قبل الموظف ويقدم لرئيس المباشر',
-                      stepOne:
-                          'بعد موافقة الرئيس المباشرة على طلب الاجازة يعبنه النموذج رقم (B2) من جزئيين الجزء الاول من فبل الموظف والجزء الثاني من فبل الموظف المختص بالإجازات',
-                      stepTwo:
-                          'لا يعتبر الموظف قد تحصل على الاجازة الابعد اعتماد النموذج رقم (B2) من الرئيس المباشر والرئيس الاعلى للموظف',
-                      stepThree:
-                          'على الموظف تقدم على الإجازة فبل اسبوع من التاريخ المراد الحصول فيه على الاجازة',
-                    ));
+                    context.router.push(
+                      LeaveInfoRoute(
+                        leaveName: 'الإجازة السنوية :',
+                        leaveDuration:
+                            'تكون الاجازة السنوية ثلاثين يوماً في السنة وخمسة واربعين يوماً لمن بلغ سن الخمسين سنة او تجاوزت مدة خدمته عشرون عاماً.',
+                        procedureStepsTitle: 'خطوات اجراء الإجازة :',
+                        stepDescription:
+                            'تعبئة نموذج طلب الاجازة رقم (A2) من قبل الموظف ويقدم لرئيس المباشر',
+                        stepOne:
+                            'بعد موافقة الرئيس المباشرة على طلب الاجازة يعبنه النموذج رقم (B2) من جزئيين الجزء الاول من فبل الموظف والجزء الثاني من فبل الموظف المختص بالإجازات',
+                        stepTwo:
+                            'لا يعتبر الموظف قد تحصل على الاجازة الابعد اعتماد النموذج رقم (B2) من الرئيس المباشر والرئيس الاعلى للموظف',
+                        stepThree:
+                            'على الموظف تقدم على الإجازة فبل اسبوع من التاريخ المراد الحصول فيه على الاجازة',
+                      ),
+                    );
                   },
                 ),
                 TaskCheckForm(
@@ -211,11 +220,13 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                      'رصيد إجازتك لا يسمح بعدد الأيام المدخل.'),
+                                    'رصيد إجازتك لا يسمح بعدد الأيام المدخل.',
+                                  ),
                                   backgroundColor: Colors
                                       .red, // يمكنك تغيير اللون حسب الحاجة
                                   duration: Duration(
-                                      seconds: 3), // مدة ظهور الـ SnackBar
+                                    seconds: 3,
+                                  ), // مدة ظهور الـ SnackBar
                                 ),
                               );
                               daysController.clear();
@@ -226,8 +237,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                       ),
 
                       Gap(16.0), // مسافة بين الحقول
-
-// حقل عدد الأيام المسموح بها
+                      // حقل عدد الأيام المسموح بها
                       CustomTextField(
                         controller: _leaveController,
                         readOnly: true,
@@ -255,7 +265,7 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
                       Gap(20.0),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -289,10 +299,9 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
       }
 
       if (_file != null) {
-        request.files.add(await http.MultipartFile.fromPath(
-          'pdf_file',
-          _file!.path,
-        ));
+        request.files.add(
+          await http.MultipartFile.fromPath('pdf_file', _file!.path),
+        );
       }
 
       final response = await request.send();
@@ -302,13 +311,11 @@ class _AnnualLeaveRequestState extends State<AnnualLeaveRequest> {
         final jsonResponse = json.decode(responseData);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              jsonResponse['message'],
-              textAlign: TextAlign.right,
-            ),
+            content: Text(jsonResponse['message'], textAlign: TextAlign.right),
             duration: Duration(seconds: 2),
-            backgroundColor:
-                jsonResponse['status'] == 'success' ? Colors.green : Colors.red,
+            backgroundColor: jsonResponse['status'] == 'success'
+                ? Colors.green
+                : Colors.red,
           ),
         );
         _resetFields();

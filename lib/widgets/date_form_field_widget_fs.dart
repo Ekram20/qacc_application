@@ -49,13 +49,15 @@ class _DateFormFieldWidgetFSState extends State<DateFormFieldWidgetFS> {
     DateTime tempDate = startDate;
     int addedDays = 0;
 
-    // إضافة الأيام مع تجاوز الجمعة والسبت
     while (addedDays < widget.days) {
-      tempDate = tempDate.add(const Duration(days: 1));
       if (tempDate.weekday != DateTime.friday && tempDate.weekday != DateTime.saturday) {
         addedDays++;
       }
+      if (addedDays < widget.days) {
+        tempDate = tempDate.add(const Duration(days: 1));
+      }
     }
+
 
     setState(() {
       widget.endDateController.text = DateFormat('yyyy-MM-dd').format(tempDate);
