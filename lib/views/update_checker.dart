@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
@@ -12,6 +13,12 @@ class UpdateChecker {
 
   Future<void> checkForUpdate(BuildContext context) async {
     try {
+      // ✨ تجاهل التحديث في أجهزة iOS
+      if (Platform.isIOS) {
+        debugPrint("🔹 التحديثات متاحة فقط لأجهزة Android.");
+        return;
+      }
+
       // أخذ نسخة التطبيق الحالي
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       String currentVersion = packageInfo.version;
@@ -56,7 +63,7 @@ class UpdateChecker {
       if (latestParts[i] > currentParts[i]) return true;
       if (latestParts[i] < currentParts[i]) return false;
     }
-    
+
     return latestParts.length > currentParts.length;
   }
 
@@ -96,7 +103,7 @@ class UpdateChecker {
                   try {
                     await launchUrl(
                       Uri.parse(apkUrl),
-                      mode: LaunchMode.externalApplication
+                      mode: LaunchMode.externalApplication,
                     );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
